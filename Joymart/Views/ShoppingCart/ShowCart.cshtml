@@ -1,0 +1,115 @@
+﻿@model Joymart.Models.Cart
+@using System.Linq
+
+@{
+    ViewBag.Title = "Giỏ hàng";
+    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+}
+
+<div class="section-header" style="margin-top: 28px;">
+    <h2 class="section-title">Giỏ hàng của bạn</h2>
+    @if (Model.Items.Any())
+    {
+        using (Html.BeginForm("ClearCart", "ShoppingCart", FormMethod.Post, new { style = "margin:0;" }))
+        {
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn-danger-soft" onclick="return confirm('Bạn có chắc muốn xóa toàn bộ giỏ hàng?');">
+                Xóa toàn bộ giỏ hàng
+            </button>
+        }
+    }
+</div>
+
+@if (TempData["CartError"] != null)
+{
+    <div class="cart-message cart-message-error">
+        @TempData["CartError"]
+    </div>
+}
+
+@if (!Model.Items.Any())
+{
+    <div class="catalog-empty">
+        <h3>Giỏ hàng đang trống</h3>
+        <p>Bạn chưa thêm sản phẩm nào vào giỏ. Hãy quay lại Trang Chủ Joymart để khám phá ngay.</p>
+        @Html.ActionLink("Tiếp tục mua hàng", "Index", "Store", null, new { @class = "btn-brand" })
+    </div>
+}
+else
+{
+    <div class="cart-table-wrap">
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Đơn giá</th>
+                    <th>Số lượng</th>
+                    <th>Thành tiền</th>
+                    <th style="width: 90px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>
+                            <div class="cart-product">
+                                <img src="~/Content/images/@(string.IsNullOrEmpty(item.ImageUrl) ? "no-image.png" : item.ImageUrl)" alt="@item.ProductName" onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
+                                <div>
+                                    <strong>@item.ProductName</strong>
+                                    <small>Tồn kho còn: @item.StockQuantity sản phẩm</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <strong>@item.UnitPrice.ToString("#,##0") đ</strong>
+                        </td>
+                        <td>
+                            @using (Html.BeginForm("UpdateQuantity", "ShoppingCart", FormMethod.Post, new { @class = "qty-form" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="productId" value="@item.ProductID" />
+                                <input type="number" name="quantity" value="@item.Quantity" min="1" max="@item.StockQuantity" />
+                                <button class="btn-soft" type="submit">Cập nhật</button>
+                            }
+                        </td>
+                        <td class="product-price">
+                            @item.LineTotal.ToString("#,##0") đ
+                        </td>
+                        <td>
+                            @using (Html.BeginForm("Remove", "ShoppingCart", FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="productId" value="@item.ProductID" />
+                                <button class="btn-soft" type="submit" style="color: #e11d48; border-color: #fecdd3;">Xóa</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="cart-summary">
+        <div style="display: flex; justify-content: space-between; font-size: 15px;">
+            <span>Tổng số lượng:</span>
+            <strong>@Model.TotalQuantity() sản phẩm</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 18px;">
+            <span>Tổng tiền thanh toán:</span>
+            <strong class="product-price" style="font-size: 22px;">@Model.TotalMoney().ToString("#,##0") đ</strong>
+        </div>
+        <div class="cart-summary-actions">
+            @Html.ActionLink("Tiếp tục mua hàng", "Index", "Store", null, new { @class = "btn-soft" })
+            @if (Session["UserID"] != null)
+            {
+                <a class="btn-brand" href="@Url.Action("Checkout", "ShoppingCart")">Tiến hành đặt hàng</a>
+            }
+            else
+            {
+                <a class="btn-soft" href="@Url.Action("Login", "Account", new { returnUrl = Url.Action("Checkout", "ShoppingCart") })">Đăng nhập để đặt hàng</a>
+                <a class="btn-brand" href="@Url.Action("Checkout", "ShoppingCart")">Đặt hàng (Khách vãng lai)</a>
+            }
+        </div>
+    </div>
+}

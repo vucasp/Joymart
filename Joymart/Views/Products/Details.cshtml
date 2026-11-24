@@ -1,0 +1,150 @@
+﻿@model Joymart.Models.Product
+
+@{
+    ViewBag.Title = Model.ProductName;
+    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+    bool canBuy = Model.IsActive && Model.StockQuantity > 0;
+}
+
+<div class="shopee-container">
+    @* Breadcrumb điều hướng *@
+    <nav class="shopee-breadcrumb">
+        <a href="@Url.Action("Index", "Store")">Joymart</a>
+        <span>&gt;</span>
+        @if (Model.Category != null)
+        {
+            <a href="@Url.Action("Index", "Store", new { categoryId = Model.CategoryID })">
+                @Model.Category.CategoryName
+            </a>
+            <span>&gt;</span>
+        }
+        <span class="current">@Model.ProductName</span>
+    </nav>
+
+    @if (TempData["CartError"] != null)
+    {
+        <div class="cart-message cart-message-error">
+            @TempData["CartError"]
+        </div>
+    }
+
+    <div class="shopee-product-box">
+        @* CỘT TRÁI: HÌNH ẢNH SẢN PHẨM *@
+        <div class="shopee-gallery">
+            <div class="shopee-main-img">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="~/Content/images/@Model.ImageUrl" alt="@Model.ProductName" />
+                }
+                else
+                {
+                    <div class="shopee-no-img">Chưa có hình ảnh</div>
+                }
+            </div>
+        </div>
+
+        @* CỘT PHẢI: TÊN, GIÁ, MÔ TẢ, SỐ LƯỢNG, NÚT ĐẶT/MUA & QUẢN TRỊ *@
+        <div class="shopee-info">
+            <div class="shopee-title-row">
+                <h1>@Model.ProductName</h1>
+            </div>
+
+            <div class="shopee-stats-row">
+                <div class="stat-item">
+                    Danh mục: <strong>@(Model.Category != null ? Model.Category.CategoryName : "Đang cập nhật")</strong>
+                </div>
+                <span class="stat-divider">|</span>
+                <div class="stat-item">
+                    Trạng thái:
+                    <strong style="color: @(Model.IsActive ? "#15803d" : "#b91c1c");">
+                        @(Model.IsActive ? "Đang bán" : "Ngừng bán")
+                    </strong>
+                </div>
+            </div>
+
+            <div class="shopee-price-box">
+                <span class="shopee-price-current">@Model.Price.ToString("#,##0") ₫</span>
+            </div>
+
+            <div class="shopee-meta-list">
+                <div class="shopee-meta-row">
+                    <div class="meta-label">Mô tả</div>
+                    <div class="meta-value meta-desc">
+                        @(string.IsNullOrWhiteSpace(Model.Description) ? "Đang cập nhật mô tả sản phẩm." : Model.Description)
+                    </div>
+                </div>
+
+                @using (Html.BeginForm("AddToCart", "ShoppingCart", FormMethod.Get, new { id = "productOrderForm" }))
+                {
+                    <input type="hidden" name="id" value="@Model.ProductID" />
+                    <input type="hidden" name="mode" id="orderMode" value="cart" />
+
+                    <div class="shopee-meta-row" style="align-items: center;">
+                        <div class="meta-label">Số lượng</div>
+                        <div class="meta-value shopee-qty-wrap">
+                            <div class="shopee-qty-control">
+                                <button type="button" onclick="changeDetailQty(-1)" @(canBuy ? "" : "disabled")>−</button>
+                                <input type="number"
+                                       id="detailQty"
+                                       name="quantity"
+                                       value="1"
+                                       min="1"
+                                       max="@(Model.StockQuantity > 0 ? Model.StockQuantity : 1)"
+                                       @(canBuy ? "" : "readonly") />
+                                <button type="button" onclick="changeDetailQty(1)" @(canBuy ? "" : "disabled")>+</button>
+                            </div>
+                            <span class="shopee-stock-text">@Model.StockQuantity sản phẩm có sẵn</span>
+                        </div>
+                    </div>
+
+                    <div class="shopee-actions">
+                        @if (canBuy)
+                        {
+                            <button type="submit"
+                                    class="btn-shopee-cart"
+                                    onclick="document.getElementById('orderMode').value='cart';">
+                                🛒 Thêm vào giỏ hàng
+                            </button>
+
+                            <button type="submit"
+                                    class="btn-shopee-buy"
+                                    onclick="document.getElementById('orderMode').value='buy';">
+                                Mua ngay
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn-shopee-disabled" disabled>
+                                @(Model.IsActive ? "Sản phẩm tạm hết hàng" : "Sản phẩm đã ngừng kinh doanh")
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+
+            @if (Convert.ToString(Session["Role"]) == "Admin")
+            {
+                <div class="shopee-admin-bar">
+                    <span>Quản trị viên:</span>
+                    @Html.ActionLink("Sửa sản phẩm", "Edit", "Products", new { id = Model.ProductID }, new { @class = "btn-soft" })
+                    @Html.ActionLink("Quản lý danh sách", "Index", "Products", null, new { @class = "btn-soft" })
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    function changeDetailQty(delta) {
+        var input = document.getElementById("detailQty");
+        if (!input || input.readOnly) return;
+
+        var current = parseInt(input.value) || 1;
+        var max = parseInt(input.max) || 1;
+        var next = current + delta;
+
+        if (next < 1) next = 1;
+        if (next > max) next = max;
+        input.value = next;
+    }
+</script>

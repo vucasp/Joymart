@@ -1,0 +1,63 @@
+﻿@model Joymart.Models.SignUpViewModel
+
+@{
+    ViewBag.Title = "Đăng ký tài khoản";
+    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+}
+
+<div class="auth-page">
+    <div class="auth-card">
+        <span class="product-category-tag">THÀNH VIÊN JOYMART</span>
+        <h2>Đăng ký tài khoản</h2>
+        <p class="auth-subtitle">Tạo tài khoản thành viên để đăng nhập và đặt hàng tại Joymart.</p>
+
+        @using (Html.BeginForm("SignUp", "Account", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "cart-message cart-message-error" })
+
+            <div class="auth-field">
+                @Html.LabelFor(m => m.UserName)
+                @Html.TextBoxFor(m => m.UserName, new { @class = "form-control-modern", placeholder = "Tối đa 20 ký tự (ví dụ: customer01)", maxlength = "20" })
+                @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="auth-field">
+                @Html.LabelFor(m => m.Password)
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control-modern", placeholder = "Ít nhất 6 ký tự" })
+                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="auth-field">
+                @Html.LabelFor(m => m.ConfirmPassword)
+                @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control-modern", placeholder = "Nhập lại mật khẩu" })
+                @Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="auth-field">
+                @Html.LabelFor(m => m.FullName)
+                @Html.TextBoxFor(m => m.FullName, new { @class = "form-control-modern", placeholder = "Tối đa 20 ký tự (ví dụ: Nguyễn Văn A)", maxlength = "20" })
+                @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="auth-field">
+                @Html.LabelFor(m => m.Phone)
+                @Html.TextBoxFor(m => m.Phone, new { @class = "form-control-modern", placeholder = "10 chữ số bắt đầu bằng 0 (ví dụ: 0901234567)", maxlength = "10" })
+                @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="auth-field">
+                @Html.LabelFor(m => m.Email)
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control-modern", placeholder = "Bắt buộc đuôi @gmail.com (ví dụ: example@gmail.com)" })
+                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+            </div>
+
+            <button type="submit" class="btn-brand auth-submit">Đăng ký ngay</button>
+        }
+
+        <p class="auth-bottom-link">
+            Đã có tài khoản Joymart?
+            <a href="@Url.Action("Login", "Account")" style="color: var(--brand-dark); font-weight: 700;">Đăng nhập</a>
+        </p>
+    </div>
+</div>

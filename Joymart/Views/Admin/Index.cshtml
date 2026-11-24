@@ -1,0 +1,29 @@
+﻿@{
+    ViewBag.Title = "Bảng điều khiển quản trị";
+    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+}
+
+<div class="section-header" style="margin-top: 28px;">
+    <h2 class="section-title">Khu vực quản trị Joymart</h2>
+    <span class="status-badge status-active">Quyền: Quản trị viên</span>
+</div>
+
+<div class="admin-grid">
+    <a class="admin-dashboard-card" href="@Url.Action("Index", "Products")">
+        <span class="product-category-tag">KHO HÀNG</span>
+        <h3>Quản lý sản phẩm</h3>
+        <p>Thêm sản phẩm mới, cập nhật giá bán, số lượng tồn kho và hình ảnh hiển thị.</p>
+    </a>
+
+    <a class="admin-dashboard-card" href="@Url.Action("Index", "Categories")">
+        <span class="product-category-tag">PHÂN LOẠI</span>
+        <h3>Quản lý danh mục</h3>
+        <p>Tổ chức và chỉnh sửa các nhóm ngành hàng kinh doanh trên hệ thống Joymart.</p>
+    </a>
+
+    <a class="admin-dashboard-card" href="@Url.Action("Index", "Orders")">
+        <span class="product-category-tag">VẬN HÀNH</span>
+        <h3>Quản lý đơn hàng</h3>
+        <p>Theo dõi đơn đặt hàng của khách, xem chi tiết sản phẩm và cập nhật trạng thái giao hàng.</p>
+    </a>
+</div>

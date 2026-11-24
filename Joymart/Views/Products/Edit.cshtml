@@ -1,0 +1,130 @@
+﻿@model Joymart.Models.Product
+
+@{
+    ViewBag.Title = "Chỉnh sửa sản phẩm";
+    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+}
+
+<div class="shopee-container">
+    <nav class="shopee-breadcrumb">
+        <a href="@Url.Action("Index", "Products")">Quản lý sản phẩm</a>
+        <span>&gt;</span>
+        <span class="current">Chỉnh sửa: @Model.ProductName</span>
+    </nav>
+
+    @using (Html.BeginForm("Edit", "Products", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.ProductID)
+        @Html.HiddenFor(model => model.ImageUrl)
+
+        <div class="shopee-product-box">
+            @* CỘT TRÁI: XEM TRƯỚC & ĐỔI ẢNH SẢN PHẨM *@
+            <div class="shopee-gallery">
+                <div class="shopee-main-img">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img id="previewImg" src="~/Content/images/@Model.ImageUrl" alt="@Model.ProductName" />
+                    }
+                    else
+                    {
+                        <img id="previewImg" src="~/Content/images/no-image.png" alt="Chưa có ảnh" />
+                    }
+                </div>
+
+                <div class="shopee-upload-box">
+                    <label for="ImageFile" class="btn-soft" style="width: 100%; text-align: center; cursor: pointer;">
+                        Chọn ảnh mới từ máy tính
+                    </label>
+                    <input type="file"
+                           id="ImageFile"
+                           name="ImageFile"
+                           accept="image/*"
+                           style="display: none;"
+                           onchange="previewProductImage(this)" />
+                    <small style="display: block; margin-top: 6px; color: #64748b; text-align: center;">
+                        Ảnh hiện tại: <strong>@(string.IsNullOrEmpty(Model.ImageUrl) ? "Chưa có" : Model.ImageUrl)</strong>
+                    </small>
+                </div>
+            </div>
+
+            @* CỘT PHẢI: THÔNG TIN CHỈNH SỬA *@
+            <div class="shopee-info">
+                <div class="shopee-title-row" style="margin-bottom: 18px;">
+                    <h1>Chỉnh sửa sản phẩm</h1>
+                </div>
+
+                @Html.ValidationSummary(true, "", new { @class = "cart-message cart-message-error" })
+
+                <div class="shopee-meta-list">
+                    <div class="shopee-meta-row" style="align-items: center;">
+                        <div class="meta-label">Tên sản phẩm</div>
+                        <div class="meta-value">
+                            @Html.TextBoxFor(m => m.ProductName, new { @class = "form-control-modern", placeholder = "Nhập tên sản phẩm" })
+                            @Html.ValidationMessageFor(m => m.ProductName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="shopee-meta-row" style="align-items: center;">
+                        <div class="meta-label">Danh mục</div>
+                        <div class="meta-value">
+                            @Html.DropDownList("CategoryID", null, htmlAttributes: new { @class = "form-control-modern" })
+                            @Html.ValidationMessageFor(m => m.CategoryID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="shopee-meta-row" style="align-items: center;">
+                        <div class="meta-label">Đơn giá (₫)</div>
+                        <div class="meta-value">
+                            @Html.TextBoxFor(m => m.Price, "{0:0}", new { @class = "form-control-modern", type = "number", min = "0", step = "1000" })
+                            @Html.ValidationMessageFor(m => m.Price, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="shopee-meta-row" style="align-items: center;">
+                        <div class="meta-label">Tồn kho</div>
+                        <div class="meta-value">
+                            @Html.TextBoxFor(m => m.StockQuantity, new { @class = "form-control-modern", type = "number", min = "0" })
+                            @Html.ValidationMessageFor(m => m.StockQuantity, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="shopee-meta-row">
+                        <div class="meta-label" style="padding-top: 8px;">Mô tả</div>
+                        <div class="meta-value">
+                            @Html.TextAreaFor(m => m.Description, new { @class = "form-control-modern", rows = 3, placeholder = "Mô tả ngắn gọn về sản phẩm..." })
+                            @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="shopee-meta-row" style="align-items: center;">
+                        <div class="meta-label">Trạng thái</div>
+                        <div class="meta-value">
+                            <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600;">
+                                @Html.CheckBoxFor(m => m.IsActive)
+                                <span>Đang kinh doanh (hiển thị trên cửa hàng)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shopee-actions">
+                    <button type="submit" class="btn-shopee-buy">Lưu thay đổi</button>
+                    @Html.ActionLink("Quay lại danh sách", "Index", "Products", null, new { @class = "btn-soft", style = "padding: 13px 22px;" })
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    function previewProductImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById("previewImg").src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>

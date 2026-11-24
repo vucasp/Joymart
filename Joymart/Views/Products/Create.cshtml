@@ -1,0 +1,117 @@
+﻿@model Joymart.Models.Product
+
+@{
+    ViewBag.Title = "Thêm sản phẩm";
+    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+}
+
+<div class="admin-panel" style="max-width: 820px; margin: 32px auto;">
+    <h2 class="section-title" style="margin-bottom: 24px;">Thêm sản phẩm mới</h2>
+
+    @using (Html.BeginForm("Create", "Products", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+            <h4>Thông tin sản phẩm</h4>
+            <hr />
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.ProductName, "Tên sản phẩm", htmlAttributes: new { @class = "control-label col-md-3" })
+                <div class="col-md-9">
+                    @Html.EditorFor(model => model.ProductName, new { htmlAttributes = new { @class = "form-control", placeholder = "Ví dụ: Tai nghe Bluetooth Sony WH-CH520" } })
+                    @Html.ValidationMessageFor(model => model.ProductName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Description, "Mô tả", htmlAttributes: new { @class = "control-label col-md-3" })
+                <div class="col-md-9">
+                    @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control", placeholder = "Ví dụ: Pin bền bỉ 50 giờ, âm thanh sống động" } })
+                    @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.CategoryID, "Danh mục", htmlAttributes: new { @class = "control-label col-md-3" })
+                <div class="col-md-9">
+                    @Html.DropDownList("CategoryID", null, htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.CategoryID, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Price, "Đơn giá", htmlAttributes: new { @class = "control-label col-md-3" })
+                <div class="col-md-9">
+                    @Html.EditorFor(model => model.Price, new { htmlAttributes = new { @class = "form-control", placeholder = "Ví dụ: 1290000" } })
+                    @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-md-3">Hình sản phẩm</label>
+                <div class="col-md-9">
+                    <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <input type="file"
+                               id="imageFile"
+                               name="imageFile"
+                               class="form-control"
+                               accept=".jpg,.jpeg,.png"
+                               onchange="previewImage(event)" />
+                        <img id="imagePreview"
+                             alt="Ảnh xem trước"
+                             style="display: none; width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 1px solid #cbd5e1;" />
+                    </div>
+                    @Html.ValidationMessage("ImageUrl", "", new { @class = "text-danger" })
+                    <small class="text-muted">Chọn file JPG, JPEG hoặc PNG. Dung lượng tối đa 2 MB.</small>
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.StockQuantity, "Số lượng tồn kho", htmlAttributes: new { @class = "control-label col-md-3" })
+                <div class="col-md-9">
+                    @Html.EditorFor(model => model.StockQuantity, new { htmlAttributes = new { @class = "form-control", placeholder = "Ví dụ: 20" } })
+                    @Html.ValidationMessageFor(model => model.StockQuantity, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.IsActive, "Trạng thái", htmlAttributes: new { @class = "control-label col-md-3" })
+                <div class="col-md-9">
+                    <div class="checkbox">
+                        <label>
+                            @Html.EditorFor(model => model.IsActive) Đang kinh doanh
+                        </label>
+                        @Html.ValidationMessageFor(model => model.IsActive, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 24px;">
+                <div class="col-md-offset-3 col-md-9" style="display: flex; gap: 12px; align-items: center;">
+                    <input type="submit" value="Lưu sản phẩm" class="btn-brand" />
+                    @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn-soft" })
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    function previewImage(event) {
+        var input = event.target;
+        var preview = document.getElementById("imagePreview");
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = "block";
+            };
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.src = "";
+            preview.style.display = "none";
+        }
+    }
+</script>

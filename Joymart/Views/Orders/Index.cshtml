@@ -1,0 +1,63 @@
+﻿@model IEnumerable<Joymart.Models.OrderPro>
+
+@{
+    ViewBag.Title = "Quản lý đơn hàng";
+    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+}
+
+<div class="admin-panel">
+    <div class="admin-toolbar">
+        <h2 class="section-title">Quản lý đơn hàng</h2>
+        <span style="color: var(--muted); font-size: 14px; font-weight: 600;">
+            Tổng cộng: <strong style="color: var(--brand-dark);">@Model.Count()</strong> đơn hàng
+        </span>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Ngày đặt</th>
+                    <th>Người nhận</th>
+                    <th>Số điện thoại</th>
+                    <th>Loại khách</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><strong>#@item.OrderID</strong></td>
+                        <td>@item.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td><strong>@(item.RecipientName ?? (item.Customer != null ? item.Customer.FullName : ""))</strong></td>
+                        <td>@(item.ShippingPhone ?? (item.Customer != null ? item.Customer.Phone : ""))</td>
+                        <td>
+                            @if (item.Customer != null && item.Customer.UserID != null)
+                            {
+                                <span class="product-category-tag" style="margin:0;">Thành viên</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge" style="background:#f1f5f9; color:#475569;">Khách vãng lai</span>
+                            }
+                        </td>
+                        <td><strong style="color: #e11d48;">@item.TotalAmount.ToString("#,##0") đ</strong></td>
+                        <td>
+                            <span class="status-badge @(item.Status == "Hoàn thành" ? "status-active" : (item.Status == "Đã hủy" ? "status-inactive" : ""))"
+                                  style="@(item.Status != "Hoàn thành" && item.Status != "Đã hủy" ? "background:#fef3c7; color:#b45309;" : "")">
+                                @item.Status
+                            </span>
+                        </td>
+                        <td>
+                            @Html.ActionLink("Chi tiết & Xử lý", "Details", new { id = item.OrderID }, new { @class = "btn-soft", style = "padding: 6px 12px; font-size: 13px;" })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

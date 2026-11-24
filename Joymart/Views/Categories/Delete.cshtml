@@ -1,0 +1,42 @@
+﻿@model Joymart.Models.Category
+
+@{
+    ViewBag.Title = "Xóa danh mục";
+    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+    bool hasProducts = ViewBag.HasProducts != null && (bool)ViewBag.HasProducts;
+}
+
+<div class="admin-panel" style="max-width: 640px; margin: 32px auto;">
+    <h2 class="section-title" style="margin-bottom: 12px; color: #e11d48;">Xác nhận xóa danh mục</h2>
+
+    @if (hasProducts)
+    {
+        <div class="cart-message cart-message-error" style="margin-bottom: 20px;">
+            <strong>Cảnh báo:</strong> Danh mục này hiện đang chứa sản phẩm. Bạn không thể xóa danh mục cho đến khi chuyển hoặc xóa các sản phẩm thuộc danh mục này.
+        </div>
+    }
+    else
+    {
+        <p style="color: var(--muted); margin-bottom: 20px;">
+            Bạn có chắc chắn muốn xóa danh mục <strong>"@Model.CategoryName"</strong> không? Thao tác này không thể hoàn tác.
+        </p>
+    }
+
+    <div class="order-info-card" style="margin-bottom: 24px;">
+        <p><strong>Mã danh mục:</strong> #@Model.CategoryID</p>
+        <p><strong>Tên danh mục:</strong> @Model.CategoryName</p>
+        <p><strong>Số sản phẩm liên kết:</strong> @(Model.Products != null ? Model.Products.Count : 0) sản phẩm</p>
+    </div>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div style="display: flex; gap: 12px; align-items: center;">
+            @if (!hasProducts)
+            {
+                <button type="submit" class="btn-brand" style="background: #e11d48; border-color: #e11d48;">Xóa vĩnh viễn</button>
+            }
+            @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn-soft" })
+        </div>
+    }
+</div>

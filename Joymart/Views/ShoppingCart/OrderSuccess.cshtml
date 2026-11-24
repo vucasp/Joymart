@@ -1,0 +1,71 @@
+﻿@model Joymart.Models.OrderPro
+@using System.Linq
+
+@{
+    ViewBag.Title = "Đặt hàng thành công";
+    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+}
+
+<div class="order-success">
+    <div class="order-success-head">
+        <span class="status-badge status-active" style="margin-bottom: 10px;">ĐẶT HÀNG THÀNH CÔNG</span>
+        <h2 class="section-title" style="margin-top: 6px;">Cảm ơn bạn đã mua sắm tại Joymart!</h2>
+        <p style="color: var(--muted); margin-top: 8px;">Đơn hàng của bạn đã được ghi nhận vào hệ thống và đang chờ xử lý.</p>
+    </div>
+
+    <div class="order-info-grid">
+        <div class="order-info-card">
+            <h3>Thông tin đơn hàng</h3>
+            <p><strong>Mã đơn hàng:</strong> #@Model.OrderID</p>
+            <p><strong>Ngày đặt:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+            <p><strong>Trạng thái:</strong> <span class="product-category-tag" style="margin: 0;">@Model.Status</span></p>
+            <p><strong>Tổng số lượng:</strong> @Model.OrderDetails.Sum(d => d.Quantity) sản phẩm</p>
+            <p>
+                <strong>Tổng tiền:</strong>
+                <span class="product-price">@Model.TotalAmount.ToString("#,##0") đ</span>
+            </p>
+        </div>
+
+        <div class="order-info-card">
+            <h3>Thông tin giao hàng</h3>
+            <p><strong>Người nhận:</strong> @Model.RecipientName</p>
+            <p><strong>Số điện thoại:</strong> @Model.ShippingPhone</p>
+            <p><strong>Email:</strong> @(Model.Customer != null ? Model.Customer.Email : "")</p>
+            <p><strong>Địa chỉ giao hàng:</strong> @Model.ShippingAddress</p>
+        </div>
+    </div>
+
+    <h3 style="margin-bottom: 14px; font-weight: 800;">Chi tiết sản phẩm đã đặt</h3>
+    <div class="cart-table-wrap">
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Đơn giá</th>
+                    <th>Số lượng</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var detail in Model.OrderDetails)
+                {
+                    <tr>
+                        <td>
+                            <div class="cart-product">
+                                <img src="~/Content/images/@(string.IsNullOrEmpty(detail.Product.ImageUrl) ? "no-image.png" : detail.Product.ImageUrl)" alt="@detail.Product.ProductName" onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
+                                <strong>@detail.Product.ProductName</strong>
+                            </div>
+                        </td>
+                        <td>@detail.UnitPrice.ToString("#,##0") đ</td>
+                        <td><strong>@detail.Quantity</strong></td>
+                        <td class="product-price">@((detail.UnitPrice * detail.Quantity).ToString("#,##0")) đ</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="order-success-actions">
+        @Html.ActionLink("Tiếp tục mua hàng", "Index", "Store", null, new { @class = "btn-brand" })
+    </div>
+</div>

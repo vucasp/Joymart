@@ -1,0 +1,88 @@
+﻿@model Joymart.Models.CheckoutViewModel
+
+@{
+    ViewBag.Title = "Đặt hàng";
+    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+}
+
+<div class="section-header" style="margin-top: 28px;">
+    <h2 class="section-title">Thông tin đặt hàng</h2>
+</div>
+
+<div class="checkout-grid">
+    <section class="checkout-form">
+        <h3>Thông tin người nhận &amp; địa chỉ giao hàng</h3>
+
+        @using (Html.BeginForm("Checkout", "ShoppingCart", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "cart-message cart-message-error" })
+
+            <div class="checkout-row">
+                <div class="checkout-label">@Html.LabelFor(m => m.FullName)</div>
+                <div class="checkout-input">
+                    @Html.TextBoxFor(m => m.FullName, new { @class = "form-control-modern", placeholder = "Tối đa 20 ký tự (ví dụ: Nguyễn Văn A)", maxlength = "20" })
+                    @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="checkout-row">
+                <div class="checkout-label">@Html.LabelFor(m => m.Phone)</div>
+                <div class="checkout-input">
+                    @Html.TextBoxFor(m => m.Phone, new { @class = "form-control-modern", placeholder = "10 chữ số bắt đầu bằng 0 (ví dụ: 0901234567)", maxlength = "10" })
+                    @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="checkout-row">
+                <div class="checkout-label">@Html.LabelFor(m => m.Email)</div>
+                <div class="checkout-input">
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control-modern", placeholder = "Bắt buộc đuôi @gmail.com (ví dụ: example@gmail.com)" })
+                    @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="checkout-row">
+                <div class="checkout-label">@Html.LabelFor(m => m.ShippingAddress)</div>
+                <div class="checkout-input">
+                    @Html.TextBoxFor(m => m.ShippingAddress, new { @class = "form-control-modern", placeholder = "Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố" })
+                    @Html.ValidationMessageFor(m => m.ShippingAddress, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="checkout-row checkout-row-action">
+                <div class="checkout-label"></div>
+                <div class="checkout-input" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button type="submit" class="btn-brand">Xác nhận đặt hàng</button>
+                    @Html.ActionLink("Quay lại giỏ hàng", "ShowCart", "ShoppingCart", null, new { @class = "btn-soft" })
+                </div>
+            </div>
+        }
+    </section>
+
+    <aside class="checkout-summary">
+        <h3>Đơn hàng của bạn (@Model.Cart.TotalQuantity() sản phẩm)</h3>
+
+        @foreach (var item in Model.Cart.Items)
+        {
+            <div class="checkout-product">
+                <div class="checkout-product-image">
+                    <img src="~/Content/images/@(string.IsNullOrEmpty(item.ImageUrl) ? "no-image.png" : item.ImageUrl)" alt="@item.ProductName" onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
+                </div>
+                <div class="checkout-product-info">
+                    <strong>@item.ProductName</strong>
+                    <div class="checkout-product-detail">Số lượng: <span>@item.Quantity</span></div>
+                    <div class="checkout-product-detail">Đơn giá: <span>@item.UnitPrice.ToString("#,##0") đ</span></div>
+                </div>
+                <div class="checkout-product-total">
+                    @item.LineTotal.ToString("#,##0") đ
+                </div>
+            </div>
+        }
+
+        <div class="checkout-grand-total">
+            <span>Tổng cộng:</span>
+            <strong>@Model.Cart.TotalMoney().ToString("#,##0") đ</strong>
+        </div>
+    </aside>
+</div>

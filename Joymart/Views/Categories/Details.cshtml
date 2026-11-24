@@ -1,0 +1,22 @@
+﻿@model Joymart.Models.Category
+
+@{
+    ViewBag.Title = "Chi tiết danh mục";
+    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+}
+
+<div class="admin-panel" style="max-width: 640px; margin: 32px auto;">
+    <div class="admin-toolbar">
+        <h2 class="section-title">Chi tiết danh mục</h2>
+        <div style="display: flex; gap: 10px;">
+            @Html.ActionLink("Chỉnh sửa", "Edit", new { id = Model.CategoryID }, new { @class = "btn-brand" })
+            @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn-soft" })
+        </div>
+    </div>
+
+    <div class="order-info-card" style="margin-top: 18px;">
+        <p><strong>Mã danh mục:</strong> #@Model.CategoryID</p>
+        <p><strong>Tên danh mục:</strong> @Model.CategoryName</p>
+        <p><strong>Số lượng sản phẩm:</strong> @(Model.Products != null ? Model.Products.Count : 0) sản phẩm</p>
+    </div>
+</div>

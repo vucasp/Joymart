@@ -1,0 +1,17 @@
+﻿@{
+    ViewBag.Title = "Không tìm thấy trang (404)";
+    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+}
+
+<div class="auth-page">
+    <div class="auth-card" style="text-align: center; max-width: 520px;">
+        <div style="font-size: 56px; font-weight: 900; color: var(--brand-dark); line-height: 1;">404</div>
+        <h2 style="margin-top: 12px;">Không tìm thấy trang yêu cầu</h2>
+        <p class="auth-subtitle">
+            Đường dẫn bạn truy cập không tồn tại hoặc sản phẩm đã được gỡ bỏ.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 12px; margin-top: 20px;">
+            @Html.ActionLink("Quay lại mua sắm", "Index", "Store", null, new { @class = "btn-brand" })
+        </div>
+    </div>
+</div>

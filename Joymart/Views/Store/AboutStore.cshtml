@@ -1,0 +1,115 @@
+﻿@{
+    ViewBag.Title = "Giới thiệu";
+    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+}
+
+<!-- ===== PHẦN 1: THÔNG TIN TRANG WEB JOYMART ===== -->
+<section class="about-card">
+    <span class="product-category-tag">VỀ TRANG WEB</span>
+    <h2>Joymart — Website mua sắm trực tuyến hiện đại</h2>
+    <p>
+        <strong>Joymart</strong> là website thương mại điện tử được tạo ra để cung cấp các sản phẩm lấy ý tưởng từ bộ phim hoạt hình Chiikawa đến cho người dùng.
+    </p>
+    <p>
+        Hệ thống cung cấp đa dạng danh mục sản phẩm từ thiết bị công nghệ, thời trang phong cách đến đồ gia dụng và phụ kiện tiện ích với thông tin minh bạch, giá cả rõ ràng và giao diện tương thích trên cả máy tính lẫn điện thoại (Chắc vậy).
+    </p>
+</section>
+
+<!-- ===== PHẦN 2: THÔNG TIN LIÊN HỆ 3 THÀNH VIÊN ===== -->
+<section class="about-section-block">
+    <div class="section-header">
+        <h2 class="section-title">Đội ngũ phát triển</h2>
+        <span style="color: var(--muted); font-size: 14px;">Thành viên thực hiện dự án</span>
+    </div>
+
+    <div class="team-grid">
+        <!-- Thành viên 1 -->
+        <article class="team-card">
+            <div class="team-avatar">
+                <img src="~/Content/images/avt/member-01.jpg" alt="Huỳnh Trọng Nghĩa" />
+            </div>
+            <h3 class="team-name">Huỳnh Trọng Nghĩa</h3>
+            <span class="team-role-badge">Nhóm trưởng</span>
+            <ul class="team-contact">
+                <li><strong>Email:</strong> 25DH110466@st.huflit.edu.vn</li>
+                <li><strong>Điện thoại:</strong> 0763113307</li>
+            </ul>
+        </article>
+
+        <!-- Thành viên 2 -->
+        <article class="team-card">
+            <div class="team-avatar">
+                <img src="~/Content/images/avt/member-02.jpg" alt="Võ Trần Nguyên Vũ" />
+            </div>
+            <h3 class="team-name">Võ Trần Nguyên Vũ</h3>
+            <span class="team-role-badge"></span>
+            <ul class="team-contact">
+                <li><strong>Email:</strong> abc@gmail.com</li>
+                <li><strong>Điện thoại:</strong> 0</li>
+            </ul>
+        </article>
+
+        <!-- Thành viên 3 -->
+        <article class="team-card">
+            <div class="team-avatar">
+                <img src="~/Content/images/avt/member-03.jpg" alt="Lê Tuấn Vũ" />
+            </div>
+            <h3 class="team-name">Lê Tuấn Vũ</h3>
+            <span class="team-role-badge"></span>
+            <ul class="team-contact">
+                <li><strong>Email:</strong> 25DH110628@st.huflit.edu.vn</li>
+                <li><strong>Điện thoại:</strong> 0934 154 153</li>
+            </ul>
+        </article>
+    </div>
+</section>
+
+<!-- ===== PHẦN 3: PHÂN CÔNG CÔNG VIỆC TRONG BÀI LÀM WEB ===== -->
+<section class="about-section-block">
+    <div class="section-header">
+        <h2 class="section-title">Phân công công việc</h2>
+        <span style="color: var(--muted); font-size: 14px;">Chi tiết nhiệm vụ từng thành viên</span>
+    </div>
+
+    <div class="task-panel">
+        <table class="task-table">
+            <thead>
+                <tr>
+                    <th style="width: 22%;">Thành viên</th>
+                    <th style="width: 22%;">Vai trò chính</th>
+                    <th style="width: 44%;">Nội dung công việc đảm nhận</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Huỳnh Trọng Nghĩa</strong></td>
+                    <td><span class="product-category-tag" style="margin:0;"></span></td>
+                    <td>
+                        <ul class="task-list-items">
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Võ Trần Nguyên Vũ</strong></td>
+                    <td><span class="product-category-tag" style="margin:0;"></span></td>
+                    <td>
+                        <ul class="task-list-items">
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Lê Tuấn Vũ</strong></td>
+                    <td><span class="product-category-tag" style="margin:0;"></span></td>
+                    <td>
+                        <ul class="task-list-items">
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top: 28px;">
+        <a class="btn-brand" href="@Url.Action("Index", "Store")">← Quay lại trang mua sắm Joymart</a>
+    </div>
+</section>

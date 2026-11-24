@@ -1,0 +1,50 @@
+﻿@model IEnumerable<Joymart.Models.Category>
+
+@{
+    ViewBag.Title = "Quản lý danh mục";
+    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+}
+
+<div class="admin-panel" style="max-width: 820px; margin: 32px auto;">
+    <div class="admin-toolbar">
+        <h2 class="section-title">Quản lý danh mục</h2>
+        @Html.ActionLink("+ Thêm danh mục mới", "Create", null, new { @class = "btn-brand" })
+    </div>
+
+    @if (TempData["CategorySuccess"] != null)
+    {
+        <div class="cart-message cart-message-success">
+            @TempData["CategorySuccess"]
+        </div>
+    }
+    @if (TempData["CategoryError"] != null)
+    {
+        <div class="cart-message cart-message-error">
+            @TempData["CategoryError"]
+        </div>
+    }
+
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th style="width: 120px;">Mã danh mục</th>
+                <th>Tên danh mục</th>
+                <th style="width: 220px;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td><strong>#@item.CategoryID</strong></td>
+                    <td><strong>@item.CategoryName</strong></td>
+                    <td class="action-links">
+                        @Html.ActionLink("Sửa", "Edit", new { id = item.CategoryID }) |
+                        @Html.ActionLink("Chi tiết", "Details", new { id = item.CategoryID }) |
+                        @Html.ActionLink("Xóa", "Delete", new { id = item.CategoryID })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
