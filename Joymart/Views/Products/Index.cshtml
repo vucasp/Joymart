@@ -2,7 +2,7 @@
 
 @{
     ViewBag.Title = "Quản lý sản phẩm";
-    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <div class="admin-panel">
@@ -10,6 +10,13 @@
         <h2 class="section-title">Quản lý sản phẩm</h2>
         @Html.ActionLink("+ Thêm sản phẩm mới", "Create", null, new { @class = "btn-brand" })
     </div>
+
+    @if (TempData["ProductMsg"] != null)
+    {
+        <div class="cart-message cart-message-success" style="margin-bottom: 18px;">
+            @TempData["ProductMsg"]
+        </div>
+    }
 
     <div style="overflow-x: auto;">
         <table class="admin-table">

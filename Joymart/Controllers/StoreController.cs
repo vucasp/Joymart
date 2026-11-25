@@ -19,7 +19,7 @@ namespace Joymart.Controllers
             int page = 1)
         {
             // Quy định mỗi trang hiển thị tối đa 6 sản phẩm
-            const int pageSize = 6;
+            const int pageSize = 8;
             if (page < 1)
             {
                 page = 1;
@@ -64,7 +64,7 @@ namespace Joymart.Controllers
                 page = totalPages;
             }
 
-            // 6. Sắp xếp trước khi Skip/Take (Bài tập 2)
+            // 6. Sắp xếp trước khi Skip/Take
             switch (sortOrder)
             {
                 case "price_asc":
@@ -113,7 +113,7 @@ namespace Joymart.Controllers
             return View(model);
         }
 
-        // GET: /Store/AboutStore (Giữ nguyên từ Buổi 04)
+        // GET: /Store/AboutStore                  
         public ActionResult AboutStore()
         {
             return View();

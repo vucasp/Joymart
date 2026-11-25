@@ -1,0 +1,123 @@
+﻿@* ===== LAYOUT RIÊNG CHO KHU VỰC QUẢN TRỊ VIÊN (ADMIN PORTAL) ===== *@
+@{
+    string currentController = Convert.ToString(ViewContext.RouteData.Values["controller"]);
+    string currentAction = Convert.ToString(ViewContext.RouteData.Values["action"]);
+    string displayName = Convert.ToString(Session["FullName"] ?? Session["UserName"] ?? "Admin");
+    string userName = Convert.ToString(Session["UserName"] ?? "admin");
+    string initial = !string.IsNullOrEmpty(displayName) ? displayName.Substring(0, 1).ToUpper() : "A";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title - Quản trị Joymart</title>
+    @Styles.Render("~/Content/css")
+    <link href="~/Content/joymart.css?v=8" rel="stylesheet" />
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body class="admin-body">
+    <div class="admin-sidebar-backdrop" id="adminBackdrop" onclick="toggleAdminSidebar()"></div>
+
+    <div class="admin-shell">
+        <!-- SIDEBAR QUẢN TRỊ BÊN TRÁI -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="admin-sidebar-brand">
+                <a href="@Url.Action("Index", "Admin")">JOY<span>MART</span></a>
+                <span class="admin-portal-badge">Admin</span>
+            </div>
+
+            <nav class="admin-sidebar-menu">
+                <div class="admin-menu-section">Điều hành hệ thống</div>
+
+                <a class="admin-menu-link @(currentController == "Admin" ? "active" : "")"
+                   href="@Url.Action("Index", "Admin")">
+                    <span>Bảng điều khiển</span>
+                </a>
+
+                <a class="admin-menu-link @(currentController == "Products" ? "active" : "")"
+                   href="@Url.Action("Index", "Products")">
+                    <span>Quản lý sản phẩm</span>
+                </a>
+
+                <a class="admin-menu-link @(currentController == "Categories" ? "active" : "")"
+                   href="@Url.Action("Index", "Categories")">
+                    <span>Quản lý danh mục</span>
+                </a>
+
+                <a class="admin-menu-link @(currentController == "Orders" ? "active" : "")"
+                   href="@Url.Action("Index", "Orders")">
+                    <span>Quản lý đơn hàng</span>
+                </a>
+
+                <a class="admin-menu-link @(currentController == "Users" ? "active" : "")"
+                   href="@Url.Action("Index", "Users")">
+                    <span>Quản lý tài khoản</span>
+                </a>
+
+                <div class="admin-menu-section" style="margin-top: 14px;">Tiện ích &amp; Bảo mật</div>
+
+                <a class="admin-menu-link @(currentController == "Member" && currentAction == "ChangePassword" ? "active" : "")"
+                   href="@Url.Action("ChangePassword", "Member")">
+                    <span>Đổi mật khẩu</span>
+                </a>
+
+                <a class="admin-menu-link" href="@Url.Action("Index", "Store")">
+                    <span>Xem trang cửa hàng</span>
+                </a>
+            </nav>
+
+            <div class="admin-sidebar-footer">
+                <div class="admin-user-box">
+                    <div class="admin-user-avatar">@initial</div>
+                    <div class="admin-user-meta">
+                        <strong>@displayName</strong>
+                        <small>@@@userName • Quản trị viên</small>
+                    </div>
+                </div>
+
+                @using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { style = "margin:0;" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn-admin-logout">Đăng xuất hệ thống</button>
+                }
+            </div>
+        </aside>
+
+        <!-- VÙNG NỘI DUNG QUẢN TRỊ BÊN PHẢI -->
+        <div class="admin-main">
+            <header class="admin-topbar">
+                <div class="admin-topbar-left">
+                    <button type="button" class="btn-sidebar-toggle" onclick="toggleAdminSidebar()" style="font-size: 13px; font-weight: 700;">Menu</button>
+                    <h1 class="admin-topbar-title">@(ViewBag.Title ?? "Quản trị hệ thống")</h1>
+                </div>
+
+                <div class="admin-topbar-right">
+                    <a href="@Url.Action("Index", "Store")" class="btn-soft" style="padding: 7px 14px; font-size: 13px;">
+                        Giao diện khách hàng
+                    </a>
+                    <span class="role-badge-admin">Quyền: Admin</span>
+                </div>
+            </header>
+
+            <main class="admin-content">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function toggleAdminSidebar() {
+            var sb = document.getElementById("adminSidebar");
+            var bd = document.getElementById("adminBackdrop");
+            if (sb && bd) {
+                sb.classList.toggle("open");
+                bd.classList.toggle("open");
+            }
+        }
+    </script>
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

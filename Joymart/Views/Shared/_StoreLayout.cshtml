@@ -6,14 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title - Joymart</title>
     @Styles.Render("~/Content/css")
-    <link href="~/Content/joymart.css?v=6" rel="stylesheet" />
+    <link href="~/Content/joymart.css?v=7" rel="stylesheet" />
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
     <!-- Thanh thông báo trên cùng -->
     <div class="store-topbar">
         <div class="container">
-            <span>Miễn phí vận chuyển toàn quốc cho đơn hàng từ 360.067đ</span>
+            <span></span>
             <span>Hotline hỗ trợ: 3667 6736</span>
         </div>
     </div>
@@ -28,7 +28,7 @@
                 @Html.ActionLink("Giới thiệu", "AboutStore", "Store")
                 @Html.ActionLink("Trang chủ", "Index", "Store")
 
-                @* Giỏ hàng từ Session (Buổi 07) *@
+                @* Giỏ hàng từ Session*@
                 @{ Html.RenderAction("BagCart", "ShoppingCart"); }
 
                 @if (Session["UserID"] == null)
@@ -39,13 +39,10 @@
                 }
                 else
                 {
-                    @* Chỉ Admin mới nhìn thấy các liên kết quản trị *@
+                    @* Nếu là Admin đang xem giao diện cửa hàng thì hiện nút chuyển sang Portal Quản trị riêng *@
                     if (Convert.ToString(Session["Role"]) == "Admin")
                     {
-                        <a href="@Url.Action("Index", "Admin")">Quản trị</a>
-                        <a href="@Url.Action("Index", "Products")">Sản phẩm</a>
-                        <a href="@Url.Action("Index", "Categories")">Danh mục</a>
-                        <a href="@Url.Action("Index", "Orders")">Đơn hàng</a>
+                        <a href="@Url.Action("Index", "Admin")" style="background: #ffe4ef; color: #be185d; border: 1px solid #fbcfe8;">Trang quản trị</a>
                     }
                     else
                     {
@@ -87,5 +84,3 @@
     @RenderSection("scripts", required: false)
 </body>
 </html>
-
-<script src="~/Scripts/chiikawa-slider.js?v=2"></script>

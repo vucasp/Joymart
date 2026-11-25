@@ -22,10 +22,31 @@ namespace Joymart.Controllers
             return cart;
         }
 
+        private void SyncCartWithDatabase(Cart cart)
+        {
+            var productIds = cart.Items.Select(i => i.ProductID).ToList();
+            if (!productIds.Any()) return;
+
+            var dbProducts = db.Products.Where(p => productIds.Contains(p.ProductID)).ToDictionary(p => p.ProductID);
+            foreach (int pid in productIds)
+            {
+                Product dbProd;
+                if (dbProducts.TryGetValue(pid, out dbProd))
+                {
+                    cart.SyncItem(dbProd);
+                }
+                else
+                {
+                    cart.Remove(pid);
+                }
+            }
+        }
+
         // GET: /ShoppingCart/ShowCart
         public ActionResult ShowCart()
         {
             var cart = GetCart();
+            SyncCartWithDatabase(cart);
             return View(cart);
         }
 
@@ -124,6 +145,7 @@ namespace Joymart.Controllers
         public ActionResult Checkout()
         {
             var cart = GetCart();
+            SyncCartWithDatabase(cart);
             if (!cart.Items.Any())
             {
                 return RedirectToAction("ShowCart");
@@ -169,8 +191,8 @@ namespace Joymart.Controllers
                 return View(model);
             }
 
-            // Kiểm tra lại tồn kho trước khi tạo đơn
-            foreach (var item in cart.Items)
+            // Kiểm tra lại tồn kho & đồng bộ giá bán thực tế trước khi tạo đơn
+            foreach (var item in cart.Items.ToList())
             {
                 var product = db.Products.Find(item.ProductID);
                 if (product == null || !product.IsActive || product.StockQuantity < item.Quantity)
@@ -178,6 +200,10 @@ namespace Joymart.Controllers
                     ModelState.AddModelError("", "Sản phẩm \"" + item.ProductName + "\" không còn đủ số lượng tồn kho.");
                     return View(model);
                 }
+                item.UnitPrice = product.Price;
+                item.ProductName = product.ProductName;
+                item.ImageUrl = product.ImageUrl;
+                item.StockQuantity = product.StockQuantity;
             }
 
             using (var transaction = db.Database.BeginTransaction())

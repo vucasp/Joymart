@@ -2,7 +2,7 @@
 
 @{
     ViewBag.Title = "Thêm sản phẩm";
-    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <div class="admin-panel" style="max-width: 820px; margin: 32px auto;">
@@ -44,7 +44,7 @@
             <div class="form-group">
                 @Html.LabelFor(model => model.Price, "Đơn giá", htmlAttributes: new { @class = "control-label col-md-3" })
                 <div class="col-md-9">
-                    @Html.EditorFor(model => model.Price, new { htmlAttributes = new { @class = "form-control", placeholder = "Ví dụ: 1290000" } })
+                    @Html.EditorFor(model => model.Price, new { htmlAttributes = new { @class = "form-control", type = "number", min = "0", step = "1000", placeholder = "Ví dụ: 120000" } })
                     @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })
                 </div>
             </div>
@@ -71,7 +71,7 @@
             <div class="form-group">
                 @Html.LabelFor(model => model.StockQuantity, "Số lượng tồn kho", htmlAttributes: new { @class = "control-label col-md-3" })
                 <div class="col-md-9">
-                    @Html.EditorFor(model => model.StockQuantity, new { htmlAttributes = new { @class = "form-control", placeholder = "Ví dụ: 20" } })
+                    @Html.EditorFor(model => model.StockQuantity, new { htmlAttributes = new { @class = "form-control", type = "number", min = "0", placeholder = "Ví dụ: 20" } })
                     @Html.ValidationMessageFor(model => model.StockQuantity, "", new { @class = "text-danger" })
                 </div>
             </div>

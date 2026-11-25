@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Web;
 using System.Web.Mvc;
 using System;
@@ -14,13 +15,14 @@ namespace Joymart.Controllers
     {
         private DBJoymartEntities db = new DBJoymartEntities();
 
-        // Hàm lưu ảnh vào Content/images, tự thêm -1, -2 nếu trùng tên file
+        // Hàm lưu ảnh vào Content/images/products: tái sử dụng nếu trùng nội dung, tự thêm -1, -2 nếu trùng tên file khác nội dung
         private string SaveProductImage(HttpPostedFileBase imageFile, out string errorMessage)
         {
             errorMessage = null;
 
             string[] allowedExtensions = { ".jpg", ".jpeg", ".png" };
-            string ext = Path.GetExtension(imageFile.FileName)?.ToLower();
+            string originalFileName = Path.GetFileName(imageFile.FileName);
+            string ext = Path.GetExtension(originalFileName)?.ToLower();
 
             if (string.IsNullOrEmpty(ext) || !allowedExtensions.Contains(ext))
             {
@@ -41,12 +43,67 @@ namespace Joymart.Controllers
                 Directory.CreateDirectory(folderPath);
             }
 
-            // Đặt tên file duy nhất để tránh ghi đè ảnh trùng tên
-            string fileName = DateTime.Now.ToString("yyyyMMddHHmmssfff") + "_" + Guid.NewGuid().ToString("N").Substring(0, 6) + ext;
-            string fullPath = Path.Combine(folderPath, fileName);
             try
             {
-                imageFile.SaveAs(fullPath);
+                byte[] uploadedBytes;
+                using (var ms = new MemoryStream())
+                {
+                    if (imageFile.InputStream.CanSeek)
+                    {
+                        imageFile.InputStream.Position = 0;
+                    }
+                    imageFile.InputStream.CopyTo(ms);
+                    uploadedBytes = ms.ToArray();
+                }
+
+                // 1. Kiểm tra xem trong thư mục products đã có ảnh giống hệt nội dung chưa
+                using (var sha256 = SHA256.Create())
+                {
+                    byte[] uploadedHash = sha256.ComputeHash(uploadedBytes);
+
+                    foreach (string existingPath in Directory.GetFiles(folderPath))
+                    {
+                        var fileInfo = new FileInfo(existingPath);
+                        if (fileInfo.Length != uploadedBytes.Length)
+                        {
+                            continue;
+                        }
+
+                        using (var fs = new FileStream(existingPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        {
+                            byte[] existingHash = sha256.ComputeHash(fs);
+                            if (uploadedHash.SequenceEqual(existingHash))
+                            {
+                                // Ảnh đã có sẵn trong Content/images/products -> dùng lại luôn, không tạo file mới
+                                return "products/" + fileInfo.Name;
+                            }
+                        }
+                    }
+                }
+
+                // 2. Nếu là ảnh mới: giữ nguyên tên gốc, chỉ thêm -1, -2 khi trùng tên với ảnh khác nội dung
+                string baseName = Path.GetFileNameWithoutExtension(originalFileName);
+                foreach (char invalidChar in Path.GetInvalidFileNameChars())
+                {
+                    baseName = baseName.Replace(invalidChar.ToString(), "");
+                }
+                if (string.IsNullOrWhiteSpace(baseName))
+                {
+                    baseName = "product";
+                }
+
+                string fileName = baseName + ext;
+                string fullPath = Path.Combine(folderPath, fileName);
+                int counter = 1;
+
+                while (System.IO.File.Exists(fullPath))
+                {
+                    fileName = baseName + "-" + counter + ext;
+                    fullPath = Path.Combine(folderPath, fileName);
+                    counter++;
+                }
+
+                System.IO.File.WriteAllBytes(fullPath, uploadedBytes);
                 // Trả về đường dẫn tương đối tính từ ~/Content/images/
                 return "products/" + fileName;
             }
@@ -74,12 +131,48 @@ namespace Joymart.Controllers
             return View(product);
         }
 
+        private void ValidateProduct(Product product)
+        {
+            if (string.IsNullOrWhiteSpace(product.ProductName))
+            {
+                ModelState.AddModelError("ProductName", "Vui lòng nhập tên sản phẩm.");
+            }
+            else
+            {
+                product.ProductName = product.ProductName.Trim();
+                if (product.ProductName.Length > 150)
+                {
+                    ModelState.AddModelError("ProductName", "Tên sản phẩm không được vượt quá 150 ký tự.");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(product.Description) && product.Description.Length > 500)
+            {
+                ModelState.AddModelError("Description", "Mô tả sản phẩm không được vượt quá 500 ký tự.");
+            }
+
+            if (!db.Categories.Any(c => c.CategoryID == product.CategoryID))
+            {
+                ModelState.AddModelError("CategoryID", "Danh mục sản phẩm không hợp lệ.");
+            }
+
+            if (product.Price < 0)
+            {
+                ModelState.AddModelError("Price", "Đơn giá không được nhỏ hơn 0.");
+            }
+
+            if (product.StockQuantity < 0)
+            {
+                ModelState.AddModelError("StockQuantity", "Số lượng tồn kho không được nhỏ hơn 0.");
+            }
+        }
+
         // GET: Products/Create
         [AdminAuthorize]
         public ActionResult Create()
         {
             ViewBag.CategoryID = new SelectList(db.Categories, "CategoryID", "CategoryName");
-            return View();
+            return View(new Product { IsActive = true, StockQuantity = 1 });
         }
 
         // POST: Products/Create
@@ -88,6 +181,8 @@ namespace Joymart.Controllers
         [AdminAuthorize]
         public ActionResult Create([Bind(Include = "ProductID,ProductName,CategoryID,Price,StockQuantity,Description,IsActive,ImageUrl")] Product product, HttpPostedFileBase ImageFile)
         {
+            ValidateProduct(product);
+
             if (ImageFile != null && ImageFile.ContentLength > 0)
             {
                 string uploadError;
@@ -130,6 +225,8 @@ namespace Joymart.Controllers
         [AdminAuthorize]
         public ActionResult Edit([Bind(Include = "ProductID,ProductName,CategoryID,Price,StockQuantity,Description,IsActive,ImageUrl")] Product product, HttpPostedFileBase ImageFile)
         {
+            ValidateProduct(product);
+
             // Nếu admin chọn ảnh mới thì lưu ảnh mới và cập nhật ImageUrl
             // Nếu không chọn ảnh mới, @Html.HiddenFor(m => m.ImageUrl) trên View sẽ tự giữ nguyên ảnh cũ
             if (ImageFile != null && ImageFile.ContentLength > 0)

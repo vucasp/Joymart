@@ -139,11 +139,13 @@
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="Controllers\ShoppingCartController.cs" />
     <Compile Include="Controllers\StoreController.cs" />
+    <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Filters\AdminAuthorizeAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\AdminViewModels.cs" />
     <Compile Include="Models\Cart.cs" />
     <Compile Include="Models\Category.cs">
       <DependentUpon>JoymartModel.tt</DependentUpon>
@@ -205,14 +207,26 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\images\avt\member-01.jpg" />
+    <Content Include="Content\images\avt\member-02.jpg" />
+    <Content Include="Content\images\avt\member-03.jpg" />
     <Content Include="Content\images\banner\chiikawa-banner-1.jpg" />
     <Content Include="Content\images\banner\chiikawa-banner-2.jpg" />
     <Content Include="Content\images\banner\chiikawa-banner-3.jpg" />
-    <Content Include="Content\images\products\Accessories\acc-01.jpg" />
-    <Content Include="Content\images\products\Clothes\clo-01.jpg" />
-    <Content Include="Content\images\products\Home\home-01.jpg" />
-    <Content Include="Content\images\products\Home\home-02.jpg" />
-    <Content Include="Content\images\products\Home\home-03.jpg" />
+    <Content Include="Content\images\no-image.png" />
+    <Content Include="Content\images\products\acc-01.jpg" />
+    <Content Include="Content\images\products\acc-02.jpg" />
+    <Content Include="Content\images\products\acc-03.jpg" />
+    <Content Include="Content\images\products\acc-04.jpg" />
+    <Content Include="Content\images\products\acc-05.jpg" />
+    <Content Include="Content\images\products\clo-01.jpg" />
+    <Content Include="Content\images\products\clo-02.jpg" />
+    <Content Include="Content\images\products\clo-03.jpg" />
+    <Content Include="Content\images\products\home-01.jpg" />
+    <Content Include="Content\images\products\home-02.jpg" />
+    <Content Include="Content\images\products\home-03.jpg" />
+    <Content Include="Content\images\products\tech-01.jpg" />
+    <Content Include="Content\images\products\tech-02.jpg" />
     <Content Include="Content\joymart.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
@@ -267,6 +281,9 @@
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\_StoreLayout.cshtml" />
+    <Content Include="Views\Shared\_AdminLayout.cshtml" />
+    <Content Include="Views\Users\Index.cshtml" />
+    <Content Include="Views\Users\Create.cshtml" />
     <Content Include="Views\Store\Index.cshtml" />
     <Content Include="Views\Store\AboutStore.cshtml" />
     <Content Include="Views\Products\Create.cshtml" />
@@ -297,8 +314,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Content\images\avt\" />
-    <Folder Include="Content\images\products\Tech\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

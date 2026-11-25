@@ -21,7 +21,7 @@
             <div class="checkout-row">
                 <div class="checkout-label">@Html.LabelFor(m => m.FullName)</div>
                 <div class="checkout-input">
-                    @Html.TextBoxFor(m => m.FullName, new { @class = "form-control-modern", placeholder = "Tối đa 20 ký tự (ví dụ: Nguyễn Văn A)", maxlength = "20" })
+                    @Html.TextBoxFor(m => m.FullName, new { @class = "form-control-modern", placeholder = "Tối đa 20 ký tự", maxlength = "20" })
                     @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger" })
                 </div>
             </div>
@@ -29,7 +29,7 @@
             <div class="checkout-row">
                 <div class="checkout-label">@Html.LabelFor(m => m.Phone)</div>
                 <div class="checkout-input">
-                    @Html.TextBoxFor(m => m.Phone, new { @class = "form-control-modern", placeholder = "10 chữ số bắt đầu bằng 0 (ví dụ: 0901234567)", maxlength = "10" })
+                    @Html.TextBoxFor(m => m.Phone, new { @class = "form-control-modern", placeholder = "ví dụ: 0901234567", maxlength = "10" })
                     @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
                 </div>
             </div>
@@ -37,7 +37,7 @@
             <div class="checkout-row">
                 <div class="checkout-label">@Html.LabelFor(m => m.Email)</div>
                 <div class="checkout-input">
-                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control-modern", placeholder = "Bắt buộc đuôi @gmail.com (ví dụ: example@gmail.com)" })
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control-modern", placeholder = "ví dụ: example@gmail.com" })
                     @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
                 </div>
             </div>

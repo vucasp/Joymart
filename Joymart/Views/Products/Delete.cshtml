@@ -2,7 +2,7 @@
 
 @{
     ViewBag.Title = "Xóa sản phẩm";
-    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <div class="shopee-container">
@@ -18,7 +18,7 @@
             <div class="shopee-main-img">
                 @if (!string.IsNullOrEmpty(Model.ImageUrl))
                 {
-                    <img src="~/Content/images/@Model.ImageUrl" alt="@Model.ProductName" />
+                    <img src="~/Content/images/@Model.ImageUrl" alt="@Model.ProductName" onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
                 }
                 else
                 {
@@ -30,7 +30,7 @@
         @* CỘT PHẢI: CẢNH BÁO & THÔNG TIN SẢN PHẨM CẦN XÓA *@
         <div class="shopee-info">
             <div class="cart-message cart-message-error" style="margin-bottom: 16px;">
-                ⚠️ <strong>Bạn có chắc chắn muốn xóa sản phẩm này không?</strong> Thao tác này không thể hoàn tác.
+                <strong>Cảnh báo: Bạn có chắc chắn muốn xóa sản phẩm này không?</strong> Thao tác này không thể hoàn tác.
             </div>
 
             <div class="shopee-title-row">

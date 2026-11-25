@@ -1,12 +1,56 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|c:\\users\\le tuan vu\\documents\\it\\huflit\\b\u00E0i t\u1EADp\\ltweb\\lt\\joymart\\joymart\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|solutionrelative:joymart\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\joymart\\views\\shared\\_adminlayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|solutionrelative:joymart\\views\\shared\\_adminlayout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UsersController.cs",
+              "DocumentMoniker": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Controllers\\UsersController.cs",
+              "RelativeDocumentMoniker": "Joymart\\Controllers\\UsersController.cs",
+              "ToolTip": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Controllers\\UsersController.cs",
+              "RelativeToolTip": "Joymart\\Controllers\\UsersController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-25T08:07:32.317Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "_AdminLayout.cshtml",
+              "DocumentMoniker": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Views\\Shared\\_AdminLayout.cshtml",
+              "RelativeDocumentMoniker": "Joymart\\Views\\Shared\\_AdminLayout.cshtml",
+              "ToolTip": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Views\\Shared\\_AdminLayout.cshtml",
+              "RelativeToolTip": "Joymart\\Views\\Shared\\_AdminLayout.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-11-25T08:04:30.007Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

@@ -55,11 +55,36 @@ namespace Joymart.Models
             if (item.Quantity < product.StockQuantity)
             {
                 item.Quantity++;
+                item.ProductName = product.ProductName;
+                item.ImageUrl = product.ImageUrl;
+                item.UnitPrice = product.Price;
                 item.StockQuantity = product.StockQuantity;
                 return true;
             }
 
             return false;
+        }
+
+        // Đồng bộ giá bán, tồn kho và trạng thái mới nhất từ CSDL
+        public void SyncItem(Product product)
+        {
+            var item = items.FirstOrDefault(x => x.ProductID == product.ProductID);
+            if (item == null) return;
+
+            if (!product.IsActive || product.StockQuantity <= 0)
+            {
+                items.Remove(item);
+                return;
+            }
+
+            item.ProductName = product.ProductName;
+            item.ImageUrl = product.ImageUrl;
+            item.UnitPrice = product.Price;
+            item.StockQuantity = product.StockQuantity;
+            if (item.Quantity > product.StockQuantity)
+            {
+                item.Quantity = product.StockQuantity;
+            }
         }
 
         // Cập nhật số lượng một dòng sản phẩm

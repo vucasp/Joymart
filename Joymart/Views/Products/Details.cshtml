@@ -34,7 +34,7 @@
             <div class="shopee-main-img">
                 @if (!string.IsNullOrEmpty(Model.ImageUrl))
                 {
-                    <img src="~/Content/images/@Model.ImageUrl" alt="@Model.ProductName" />
+                    <img src="~/Content/images/@Model.ImageUrl" alt="@Model.ProductName" onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
                 }
                 else
                 {
@@ -103,7 +103,7 @@
                             <button type="submit"
                                     class="btn-shopee-cart"
                                     onclick="document.getElementById('orderMode').value='cart';">
-                                🛒 Thêm vào giỏ hàng
+                                Thêm vào giỏ hàng
                             </button>
 
                             <button type="submit"

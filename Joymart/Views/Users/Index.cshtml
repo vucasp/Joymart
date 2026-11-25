@@ -1,0 +1,165 @@
+﻿@model Joymart.Models.UserManagementViewModel
+
+@{
+    ViewBag.Title = "Quản lý tài khoản & Phân quyền";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="admin-panel">
+    <div class="admin-toolbar">
+        <div>
+            <h2 class="section-title">Danh sách tài khoản hệ thống</h2>
+            <small style="color: #64748b; display: block; margin-top: 4px;">
+                Tổng cộng: <strong>@Model.Users.Count</strong> tài khoản • Admin có thể cấp quyền Quản trị viên (Admin) cho tài khoản khác tại đây.
+            </small>
+        </div>
+        @Html.ActionLink("+ Tạo tài khoản mới", "Create", "Users", null, new { @class = "btn-brand" })
+    </div>
+
+    @if (TempData["UserSuccess"] != null)
+    {
+        <div class="cart-message cart-message-success">
+            @TempData["UserSuccess"]
+        </div>
+    }
+    @if (TempData["UserError"] != null)
+    {
+        <div class="cart-message cart-message-error">
+            @TempData["UserError"]
+        </div>
+    }
+
+    <!-- Thanh tìm kiếm & lọc theo quyền -->
+    <div class="catalog-toolbar" style="margin-bottom: 20px; background: #f8fafc; border-color: #e2e8f0;">
+        @using (Html.BeginForm("Index", "Users", FormMethod.Get, new { @class = "catalog-search" }))
+        {
+            <input type="text"
+                   name="keyword"
+                   value="@Model.Keyword"
+                   placeholder="Tìm theo tên đăng nhập, họ tên, SĐT hoặc email..." />
+
+            <select name="roleFilter" style="max-width: 220px;">
+                <option value="" @(string.IsNullOrEmpty(Model.RoleFilter) ? "selected" : "")>Tất cả quyền</option>
+                <option value="Admin" @(Model.RoleFilter == "Admin" ? "selected" : "")>Quản trị viên (Admin)</option>
+                <option value="Customer" @(Model.RoleFilter == "Customer" ? "selected" : "")>Khách hàng (Customer)</option>
+            </select>
+
+            <button type="submit" class="btn-brand">Lọc tài khoản</button>
+            <a class="btn-soft" href="@Url.Action("Index", "Users")">Đặt lại</a>
+        }
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Mã TK</th>
+                    <th>Tên đăng nhập</th>
+                    <th>Thông tin liên hệ</th>
+                    <th>Ngày tạo</th>
+                    <th>Quyền hiện tại</th>
+                    <th>Trạng thái</th>
+                    <th>Phân quyền &amp; Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Users)
+                {
+                    bool isSelf = (item.UserID == Model.CurrentUserId);
+                    <tr>
+                        <td><strong>#@item.UserID</strong></td>
+                        <td>
+                            <strong style="color: #0f172a;">@item.UserName</strong>
+                            @if (isSelf)
+                            {
+                                <span class="product-category-tag" style="margin: 0 0 0 6px; font-size: 11px;">Bạn</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.FullName))
+                            {
+                                <div><strong>@item.FullName</strong></div>
+                                <div style="font-size: 12.5px; color: #64748b;">
+                                    @(string.IsNullOrEmpty(item.Phone) ? "" : item.Phone)
+                                    @(!string.IsNullOrEmpty(item.Phone) && !string.IsNullOrEmpty(item.Email) ? " • " : "")
+                                    @(string.IsNullOrEmpty(item.Email) ? "" : item.Email)
+                                </div>
+                            }
+                            else
+                            {
+                                <span style="color: #94a3b8; font-size: 13px;">Tài khoản quản trị (không có hồ sơ mua hàng)</span>
+                            }
+                        </td>
+                        <td>@item.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            @if (item.RoleName == "Admin")
+                            {
+                                <span class="role-badge-admin">Admin</span>
+                            }
+                            else
+                            {
+                                <span class="role-badge-customer">Customer</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span class="status-badge status-active">Hoạt động</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-inactive">Đã khóa</span>
+                            }
+                        </td>
+                        <td style="white-space: nowrap;">
+                            @if (isSelf)
+                            {
+                                <span style="font-size: 13px; color: #64748b; font-style: italic;">Đang đăng nhập</span>
+                            }
+                            else
+                            {
+                                <div style="display: inline-flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                    @if (item.RoleName != "Admin")
+                                    {
+                                        using (Html.BeginForm("ChangeRole", "Users", FormMethod.Post, new { style = "margin:0;", onsubmit = "return confirm('Bạn có chắc muốn CẤP QUYỀN ADMIN cho tài khoản \"" + item.UserName + "\" không?');" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="userId" value="@item.UserID" />
+                                            <input type="hidden" name="targetRole" value="Admin" />
+                                            <button type="submit" class="btn-brand" style="padding: 6px 12px; font-size: 12.5px;">
+                                                Cấp quyền Admin
+                                            </button>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        using (Html.BeginForm("ChangeRole", "Users", FormMethod.Post, new { style = "margin:0;", onsubmit = "return confirm('Chuyển tài khoản \"" + item.UserName + "\" về quyền Khách hàng (Customer)?');" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="userId" value="@item.UserID" />
+                                            <input type="hidden" name="targetRole" value="Customer" />
+                                            <button type="submit" class="btn-soft" style="padding: 6px 12px; font-size: 12.5px;">
+                                                Hạ về Customer
+                                            </button>
+                                        }
+                                    }
+
+                                    @using (Html.BeginForm("ToggleActive", "Users", FormMethod.Post, new { style = "margin:0;", onsubmit = "return confirm('Xác nhận " + (item.IsActive ? "KHÓA" : "MỞ KHÓA") + " tài khoản \"" + item.UserName + "\"?');" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="userId" value="@item.UserID" />
+                                        <button type="submit"
+                                                class="btn-soft"
+                                                style="padding: 6px 12px; font-size: 12.5px; color: @(item.IsActive ? "#e11d48" : "#15803d"); border-color: @(item.IsActive ? "#fecdd3" : "#bbf7d0");">
+                                            @(item.IsActive ? "Khóa TK" : "Mở khóa")
+                                        </button>
+                                    }
+                                </div>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

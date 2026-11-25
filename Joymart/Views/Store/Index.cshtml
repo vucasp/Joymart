@@ -5,6 +5,19 @@
     Layout = "~/Views/Shared/_StoreLayout.cshtml";
 }
 
+@if (TempData["CartError"] != null)
+{
+    <div class="cart-message cart-message-error" style="margin-top: 20px;">
+        @TempData["CartError"]
+    </div>
+}
+@if (TempData["MemberError"] != null)
+{
+    <div class="cart-message cart-message-error" style="margin-top: 20px;">
+        @TempData["MemberError"]
+    </div>
+}
+
 <!-- Slideshow container -->
 <div class="slideshow-container">
 

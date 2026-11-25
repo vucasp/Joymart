@@ -27,7 +27,7 @@ namespace Joymart.Controllers
                 return View(model);
             }
 
-            // 1. Kiểm tra trùng tên đăng nhập
+            // Kiểm tra trùng tên đăng nhập
             bool userNameExists = db.UserAccounts.Any(u => u.UserName == model.UserName);
             if (userNameExists)
             {
@@ -35,7 +35,7 @@ namespace Joymart.Controllers
                 return View(model);
             }
 
-            // 2. Lấy Role Customer mặc định từ CSDL
+            // Lấy Role Customer mặc định từ CSDL
             var customerRole = db.Roles.FirstOrDefault(r => r.RoleName == "Customer");
             if (customerRole == null)
             {
@@ -43,11 +43,11 @@ namespace Joymart.Controllers
                 return View(model);
             }
 
-            // 3. Tạo Salt và Hash mật khẩu
+            // Tạo Salt và Hash mật khẩu
             string salt = PasswordHelper.CreateSalt();
             string passwordHash = PasswordHelper.Hash(model.Password, salt);
 
-            // 4. Lưu đồng thời UserAccount và Customer trong Transaction
+            // Lưu đồng thời UserAccount và Customer trong Transaction
             using (var transaction = db.Database.BeginTransaction())
             {
                 try
@@ -135,10 +135,16 @@ namespace Joymart.Controllers
                 Session.Remove("FullName");
             }
 
-            // Nếu trước đó người dùng đang bấm Đặt hàng thì chuyển thẳng lại trang Checkout
+            // Nếu trước đó người dùng đang bấm Đặt hàng hoặc vào trang yêu cầu đăng nhập thì chuyển lại đúng trang đó
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
+            }
+
+            // Nếu là Admin đăng nhập trực tiếp thì chuyển thẳng vào giao diện Portal Quản trị riêng
+            if (account.Role.RoleName == "Admin")
+            {
+                return RedirectToAction("Index", "Admin");
             }
 
             return RedirectToAction("Index", "Store");

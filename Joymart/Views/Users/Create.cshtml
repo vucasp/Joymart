@@ -1,0 +1,78 @@
+﻿@model Joymart.Models.AdminCreateUserViewModel
+
+@{
+    ViewBag.Title = "Tạo tài khoản mới";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="admin-panel" style="max-width: 680px; margin: 0 auto;">
+    <div class="admin-toolbar">
+        <h2 class="section-title">Tạo tài khoản người dùng / Admin mới</h2>
+        @Html.ActionLink("← Quay lại danh sách", "Index", "Users", null, new { @class = "btn-soft" })
+    </div>
+
+    @using (Html.BeginForm("Create", "Users", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "cart-message cart-message-error" })
+
+        <div class="auth-field">
+            @Html.LabelFor(m => m.UserName)
+            @Html.TextBoxFor(m => m.UserName, new { @class = "form-control-modern", placeholder = "Tối đa 20 ký tự (ví dụ: admin02)", maxlength = "20" })
+            @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "text-danger" })
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="auth-field">
+                @Html.LabelFor(m => m.Password)
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control-modern", placeholder = "Ít nhất 6 ký tự" })
+                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="auth-field">
+                @Html.LabelFor(m => m.ConfirmPassword)
+                @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control-modern", placeholder = "Nhập lại mật khẩu" })
+                @Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="auth-field">
+            @Html.LabelFor(m => m.RoleName)
+            <select name="RoleName" id="RoleName" class="form-control-modern">
+                <option value="Admin" @(Model.RoleName == "Admin" ? "selected" : "")>Quản trị viên (Admin)</option>
+                <option value="Customer" @(Model.RoleName == "Customer" ? "selected" : "")>Khách hàng (Customer)</option>
+            </select>
+            @Html.ValidationMessageFor(m => m.RoleName, "", new { @class = "text-danger" })
+        </div>
+
+        <hr style="border-color: #e2e8f0; margin: 20px 0;" />
+        <p style="font-size: 13.5px; color: #64748b; margin-bottom: 14px;">
+            Thông tin hồ sơ liên hệ (bắt buộc nếu tạo tài khoản <strong>Customer</strong>, không bắt buộc đối với <strong>Admin</strong>):
+        </p>
+
+        <div class="auth-field">
+            @Html.LabelFor(m => m.FullName, "Họ và tên")
+            @Html.TextBoxFor(m => m.FullName, new { @class = "form-control-modern", placeholder = "Tối đa 20 ký tự", maxlength = "20" })
+            @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger" })
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="auth-field">
+                @Html.LabelFor(m => m.Phone)
+                @Html.TextBoxFor(m => m.Phone, new { @class = "form-control-modern", placeholder = "Ví dụ: 0901234567", maxlength = "10" })
+                @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="auth-field">
+                @Html.LabelFor(m => m.Email)
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control-modern", placeholder = "Ví dụ: example@gmail.com" })
+                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 20px;">
+            <button type="submit" class="btn-brand">Lưu tài khoản mới</button>
+            @Html.ActionLink("Hủy", "Index", "Users", null, new { @class = "btn-soft" })
+        </div>
+    }
+</div>
