@@ -6,11 +6,20 @@ using System.Web.Mvc;
 
 namespace Joymart.Controllers
 {
+    // =====================================================================
+    // CONTROLLER GIỎ HÀNG, ĐẶT HÀNG & TRA CỨU ĐƠN HÀNG (ShoppingCartController)
+    // Bao gồm:
+    //   - ShowCart / AddToCart / UpdateQuantity / Remove / ClearCart / BagCart
+    //   - Checkout: Tạo đơn hàng có tính phí vận chuyển tự động (Freeship >= 360.067đ)
+    //               và trừ trực tiếp tồn kho Product.StockQuantity trong Transaction.
+    //   - OrderSuccess: Hiển thị xác nhận đơn hàng vừa đặt (có chống xem trộm IDOR).
+    //   - TrackOrder: Cho phép Khách vãng lai tra cứu tiến độ đơn bằng Mã đơn + SĐT.
+    // =====================================================================
     public class ShoppingCartController : Controller
     {
         private DBJoymartEntities db = new DBJoymartEntities();
 
-        // Lấy Cart hiện tại từ Session hoặc khởi tạo mới
+        // Lấy đối tượng Giỏ hàng từ Session (nếu chưa có thì khởi tạo mới)
         private Cart GetCart()
         {
             var cart = Session["Cart"] as Cart;
@@ -22,12 +31,16 @@ namespace Joymart.Controllers
             return cart;
         }
 
+        // Đồng bộ lại giá bán, tồn kho và trạng thái kinh doanh mới nhất từ CSDL cho giỏ hàng
         private void SyncCartWithDatabase(Cart cart)
         {
             var productIds = cart.Items.Select(i => i.ProductID).ToList();
             if (!productIds.Any()) return;
 
-            var dbProducts = db.Products.Where(p => productIds.Contains(p.ProductID)).ToDictionary(p => p.ProductID);
+            var dbProducts = db.Products
+                .Where(p => productIds.Contains(p.ProductID))
+                .ToDictionary(p => p.ProductID);
+
             foreach (int pid in productIds)
             {
                 Product dbProd;
@@ -42,7 +55,7 @@ namespace Joymart.Controllers
             }
         }
 
-        // GET: /ShoppingCart/ShowCart
+        // GET: /ShoppingCart/ShowCart (Xem chi tiết giỏ hàng & thanh tiến trình Freeship)
         public ActionResult ShowCart()
         {
             var cart = GetCart();
@@ -50,13 +63,13 @@ namespace Joymart.Controllers
             return View(cart);
         }
 
-        // GET: /ShoppingCart/AddToCart/5
+        // GET: /ShoppingCart/AddToCart/5 (Thêm sản phẩm vào giỏ hoặc Mua ngay)
         public ActionResult AddToCart(int id, int quantity = 1, string mode = "cart")
         {
             var product = db.Products.FirstOrDefault(p => p.ProductID == id && p.IsActive);
             if (product == null)
             {
-                TempData["CartError"] = "Sản phẩm không tồn tại hoặc đã ngừng bán.";
+                TempData["CartError"] = "Sản phẩm không tồn tại hoặc đã ngừng kinh doanh.";
                 return RedirectToAction("Index", "Store");
             }
 
@@ -82,17 +95,15 @@ namespace Joymart.Controllers
                 return RedirectToAction("Details", "Products", new { id = id });
             }
 
-            // Nếu bấm "Mua ngay" -> chuyển thẳng tới trang Checkout
             if (mode == "buy")
             {
                 return RedirectToAction("Checkout");
             }
 
-            // Nếu bấm "Thêm vào giỏ hàng" -> chuyển sang trang Giỏ hàng
             return RedirectToAction("ShowCart");
         }
 
-        // POST: /ShoppingCart/UpdateQuantity
+        // POST: /ShoppingCart/UpdateQuantity (Cập nhật số lượng từng dòng trong giỏ)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult UpdateQuantity(int productId, int quantity)
@@ -113,7 +124,7 @@ namespace Joymart.Controllers
             return RedirectToAction("ShowCart");
         }
 
-        // POST: /ShoppingCart/Remove
+        // POST: /ShoppingCart/Remove (Xóa 1 sản phẩm khỏi giỏ)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Remove(int productId)
@@ -122,7 +133,7 @@ namespace Joymart.Controllers
             return RedirectToAction("ShowCart");
         }
 
-        // POST: /ShoppingCart/ClearCart (Bài tập 1: Xóa toàn bộ giỏ hàng)
+        // POST: /ShoppingCart/ClearCart (Xóa sạch toàn bộ giỏ hàng)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult ClearCart()
@@ -131,17 +142,17 @@ namespace Joymart.Controllers
             return RedirectToAction("ShowCart");
         }
 
-        // Partial View hiển thị số lượng & tổng tiền giỏ hàng trên Navbar
+        // Partial View hiển thị tóm tắt số lượng & tiền hàng trên thanh Navbar
         [ChildActionOnly]
         public PartialViewResult BagCart()
         {
             var cart = Session["Cart"] as Cart;
             ViewBag.CartQty = cart == null ? 0 : cart.TotalQuantity();
-            ViewBag.CartTotal = cart == null ? 0 : cart.TotalMoney();
+            ViewBag.CartTotal = cart == null ? 0m : cart.TotalMoney();
             return PartialView();
         }
 
-        // GET: /ShoppingCart/Checkout
+        // GET: /ShoppingCart/Checkout (Trang điền thông tin nhận hàng)
         public ActionResult Checkout()
         {
             var cart = GetCart();
@@ -156,7 +167,7 @@ namespace Joymart.Controllers
                 Cart = cart
             };
 
-            // Nếu Customer đã đăng nhập -> tự động điền thông tin hồ sơ
+            // Tự động điền thông tin nếu khách đã đăng nhập tài khoản thành viên
             if (Session["CustomerID"] != null)
             {
                 int customerId = (int)Session["CustomerID"];
@@ -173,7 +184,7 @@ namespace Joymart.Controllers
             return View(model);
         }
 
-        // POST: /ShoppingCart/Checkout
+        // POST: /ShoppingCart/Checkout (Xác nhận đặt hàng & Trừ tồn kho trong Transaction)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Checkout(CheckoutViewModel model)
@@ -191,7 +202,7 @@ namespace Joymart.Controllers
                 return View(model);
             }
 
-            // Kiểm tra lại tồn kho & đồng bộ giá bán thực tế trước khi tạo đơn
+            // Kiểm tra lại tồn kho thực tế và đồng bộ giá bán mới nhất trước khi ghi đơn
             foreach (var item in cart.Items.ToList())
             {
                 var product = db.Products.Find(item.ProductID);
@@ -200,11 +211,15 @@ namespace Joymart.Controllers
                     ModelState.AddModelError("", "Sản phẩm \"" + item.ProductName + "\" không còn đủ số lượng tồn kho.");
                     return View(model);
                 }
+
                 item.UnitPrice = product.Price;
                 item.ProductName = product.ProductName;
                 item.ImageUrl = product.ImageUrl;
                 item.StockQuantity = product.StockQuantity;
             }
+
+            decimal shippingFee = cart.ShippingFee();
+            decimal grandTotal = cart.GrandTotal();
 
             using (var transaction = db.Database.BeginTransaction())
             {
@@ -212,7 +227,6 @@ namespace Joymart.Controllers
                 {
                     Customer customer = null;
 
-                    // Trường hợp 1: Customer đã đăng nhập -> dùng CustomerID hiện tại
                     if (Session["CustomerID"] != null)
                     {
                         int customerId = (int)Session["CustomerID"];
@@ -223,13 +237,11 @@ namespace Joymart.Controllers
                             return View(model);
                         }
 
-                        // Nếu khách hàng chưa có địa chỉ thì tự động cập nhật từ đơn hàng
                         if (string.IsNullOrWhiteSpace(customer.Address) && !string.IsNullOrWhiteSpace(model.ShippingAddress))
                         {
                             customer.Address = model.ShippingAddress;
                         }
                     }
-                    // Trường hợp 2: Guest -> tạo bản ghi Customer mới (UserID = null)
                     else
                     {
                         customer = new Customer
@@ -244,7 +256,6 @@ namespace Joymart.Controllers
                         db.SaveChanges();
                     }
 
-                    // Tạo OrderPro với tổng tiền bằng đúng tổng tiền giỏ hàng
                     var order = new OrderPro
                     {
                         OrderDate = DateTime.Now,
@@ -252,13 +263,13 @@ namespace Joymart.Controllers
                         RecipientName = model.FullName,
                         ShippingPhone = model.Phone,
                         ShippingAddress = model.ShippingAddress,
-                        TotalAmount = cart.TotalMoney(),
+                        ShippingFee = shippingFee,
+                        TotalAmount = grandTotal,
                         Status = "Chờ xử lý"
                     };
                     db.OrderProes.Add(order);
                     db.SaveChanges();
 
-                    // Tạo OrderDetail và trừ tồn kho Product
                     foreach (var item in cart.Items)
                     {
                         var product = db.Products.Find(item.ProductID);
@@ -270,6 +281,8 @@ namespace Joymart.Controllers
                             UnitPrice = item.UnitPrice
                         };
                         db.OrderDetails.Add(detail);
+
+                        // Trừ trực tiếp số lượng tồn kho (tự động đồng bộ sang Quản lý kho)
                         product.StockQuantity -= item.Quantity;
                     }
                     db.SaveChanges();
@@ -289,9 +302,11 @@ namespace Joymart.Controllers
             }
         }
 
-        // GET: /ShoppingCart/OrderSuccess/5
+        // GET: /ShoppingCart/OrderSuccess/5 (Trang thông báo đặt hàng thành công)
         public ActionResult OrderSuccess(int id)
         {
+            OrderWorkflowHelper.SyncAutoCompletedOrders(db);
+
             var order = db.OrderProes
                 .Include(o => o.Customer)
                 .Include(o => o.OrderDetails.Select(d => d.Product))
@@ -302,7 +317,7 @@ namespace Joymart.Controllers
                 return HttpNotFound();
             }
 
-            // Kiểm tra bảo mật (chống IDOR - xem trộm đơn hàng người khác):
+            // Bảo mật chống IDOR: Chỉ chủ đơn, phiên vừa đặt xong hoặc Admin mới xem được
             int? latestOrderId = Session["LatestOrderId"] as int?;
             int? currentCustomerId = Session["CustomerID"] as int?;
             string currentRole = Convert.ToString(Session["Role"]);
@@ -318,6 +333,50 @@ namespace Joymart.Controllers
             }
 
             return View(order);
+        }
+
+        // GET: /ShoppingCart/TrackOrder (Tra cứu đơn hàng dành cho Khách vãng lai & Thành viên)
+        [HttpGet]
+        public ActionResult TrackOrder(int? orderId, string phone)
+        {
+            OrderWorkflowHelper.SyncAutoCompletedOrders(db);
+
+            var model = new TrackOrderViewModel
+            {
+                OrderID = orderId,
+                Phone = phone,
+                Searched = false
+            };
+
+            if (!orderId.HasValue && string.IsNullOrWhiteSpace(phone))
+            {
+                return View(model);
+            }
+
+            model.Searched = true;
+
+            if (!orderId.HasValue || orderId.Value <= 0 || string.IsNullOrWhiteSpace(phone))
+            {
+                model.ErrorMessage = "Vui lòng nhập đầy đủ cả Mã đơn hàng và Số điện thoại nhận hàng.";
+                return View(model);
+            }
+
+            string cleanPhone = phone.Trim();
+            var order = db.OrderProes
+                .Include(o => o.Customer)
+                .Include(o => o.OrderDetails.Select(d => d.Product))
+                .FirstOrDefault(o =>
+                    o.OrderID == orderId.Value &&
+                    (o.ShippingPhone == cleanPhone || o.Customer.Phone == cleanPhone));
+
+            if (order == null)
+            {
+                model.ErrorMessage = "Không tìm thấy đơn hàng khớp với Mã đơn #" + orderId.Value + " và số điện thoại " + cleanPhone + ".";
+                return View(model);
+            }
+
+            model.FoundOrder = order;
+            return View(model);
         }
 
         protected override void Dispose(bool disposing)

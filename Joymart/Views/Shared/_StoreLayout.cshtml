@@ -1,4 +1,12 @@
-﻿@* ===== LAYOUT DÙNG CHUNG CHO WEBSITE JOYMART ===== *@
+﻿@* =====================================================================
+   LAYOUT KHÁCH HÀNG: Views/Shared/_StoreLayout.cshtml
+   MỤC ĐÍCH:
+     Khung giao diện dùng chung cho toàn bộ trang mua sắm phía Khách hàng:
+       - Nạp bộ file CSS đã tách theo từng phân hệ trong ~/Content/css/
+       - Thanh Topbar chính sách Freeship 360.067đ
+       - Thanh Header điều hướng (có Tra cứu đơn hàng & Giỏ hàng Session)
+       - Chân trang (Footer) thiết kế mới chia 3 cột cân đối
+   ===================================================================== *@
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,53 +14,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title - Joymart</title>
     @Styles.Render("~/Content/css")
-    <link href="~/Content/joymart.css?v=7" rel="stylesheet" />
+    <link href="~/Content/css/base.css?v=2" rel="stylesheet" />
+    <link href="~/Content/css/store.css?v=2" rel="stylesheet" />
+    <link href="~/Content/css/product-detail.css?v=2" rel="stylesheet" />
+    <link href="~/Content/css/cart-checkout.css?v=2" rel="stylesheet" />
+    <link href="~/Content/css/auth-member.css?v=2" rel="stylesheet" />
+    <link href="~/Content/css/about.css?v=2" rel="stylesheet" />
+    @RenderSection("styles", required: false)
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
-    <!-- Thanh thông báo trên cùng -->
+    <!-- Thanh thông báo chính sách vận chuyển trên cùng -->
     <div class="store-topbar">
         <div class="container">
-            <span></span>
+            <span>Miễn phí vận chuyển toàn quốc cho đơn hàng từ 360.067đ</span>
             <span>Hotline hỗ trợ: 3667 6736</span>
         </div>
     </div>
 
-    <!-- Header: Logo Joymart và Menu điều hướng -->
+    <!-- Header: Logo Joymart và Menu điều hướng khách hàng -->
     <header class="store-header">
         <div class="container">
             <a class="brand" href="@Url.Action("Index", "Store")">JOY<span>MART</span></a>
 
             <nav class="store-nav">
-                @* Menu chung cho tất cả người dùng *@
-                @Html.ActionLink("Giới thiệu", "AboutStore", "Store")
                 @Html.ActionLink("Trang chủ", "Index", "Store")
+                @Html.ActionLink("Giới thiệu", "AboutStore", "Store")
+                @Html.ActionLink("Tra cứu đơn", "TrackOrder", "ShoppingCart")
 
-                @* Giỏ hàng từ Session*@
                 @{ Html.RenderAction("BagCart", "ShoppingCart"); }
 
                 @if (Session["UserID"] == null)
                 {
-                    @* Trạng thái Guest (chưa đăng nhập) *@
                     <a href="@Url.Action("SignUp", "Account")">Đăng ký</a>
                     <a href="@Url.Action("Login", "Account")">Đăng nhập</a>
                 }
                 else
                 {
-                    @* Nếu là Admin đang xem giao diện cửa hàng thì hiện nút chuyển sang Portal Quản trị riêng *@
                     if (Convert.ToString(Session["Role"]) == "Admin")
                     {
-                        <a href="@Url.Action("Index", "Admin")" style="background: #ffe4ef; color: #be185d; border: 1px solid #fbcfe8;">Trang quản trị</a>
+                        <a class="nav-admin-pill" href="@Url.Action("Index", "Admin")">Trang quản trị</a>
                     }
                     else
                     {
                         <a href="@Url.Action("MyOrders", "Member")">Đơn mua</a>
-                        <a href="@Url.Action("Profile", "Member")">Hồ sơ</a>
                     }
 
-                    <span class="nav-user">
-                        Xin chào, @(Session["FullName"] ?? Session["UserName"])
-                    </span>
+                    @* Gộp mục Hồ sơ vào phần "Xin chào, xxx": khi di chuột vào sẽ hiện ra nút chọn Hồ sơ *@
+                    <div class="nav-user-dropdown">
+                        <span class="nav-user-trigger">
+                            Xin chào, @(Session["FullName"] ?? Session["UserName"])
+                        </span>
+                        <div class="nav-user-menu">
+                            @if (Session["CustomerID"] != null)
+                            {
+                                <a href="@Url.Action("Profile", "Member")" class="nav-user-menu-btn">Hồ sơ</a>
+                            }
+                            else
+                            {
+                                <a href="@Url.Action("ChangePassword", "Member")" class="nav-user-menu-btn">Đổi mật khẩu</a>
+                            }
+                        </div>
+                    </div>
 
                     using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { @class = "nav-logout-form" }))
                     {
@@ -64,18 +87,44 @@
         </div>
     </header>
 
-    <!-- Vùng nội dung chính của từng View -->
+    <!-- Vùng nội dung chính của từng trang -->
     <main class="container">
         @RenderBody()
     </main>
 
-    <!-- Footer dùng chung -->
+    <!-- Footer cửa hàng bố cục 3 cột -->
     <footer class="store-footer">
         <div class="container">
-            <strong>JOYMART</strong>
-            <p style="margin: 8px 0 0; font-size: 14px; color: #94a3b8;">
-                Hệ thống cung cấp các sản phẩm liên quan đến chủ đề Chiikawa
-            </p>
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand-title">JOY<span>MART</span></div>
+                    <p>
+                        Hệ thống thương mại điện tử chuyên cung cấp các dòng sản phẩm phụ kiện, thời trang, đồ gia dụng và thiết bị công nghệ lấy cảm hứng từ thế giới nhân vật Chiikawa.
+                    </p>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Điều hướng nhanh</h4>
+                    <ul class="footer-links">
+                        <li><a href="@Url.Action("Index", "Store")">Tất cả sản phẩm</a></li>
+                        <li><a href="@Url.Action("AboutStore", "Store")">Giới thiệu &amp; Đội ngũ</a></li>
+                        <li><a href="@Url.Action("ShowCart", "ShoppingCart")">Giỏ hàng của bạn</a></li>
+                        <li><a href="@Url.Action("TrackOrder", "ShoppingCart")">Tra cứu trạng thái đơn hàng</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Chính sách &amp; Hỗ trợ</h4>
+                    <p><strong>Vận chuyển:</strong> Miễn phí giao hàng toàn quốc cho đơn từ 360.067đ (đơn dưới mốc phí tiêu chuẩn 25.000đ).</p>
+                    <p><strong>Cam kết:</strong> Tồn kho minh bạch theo thời gian thực, hỗ trợ kiểm tra tình trạng giao nhận trực tuyến.</p>
+                    <p><strong>Hotline:</strong> 3667 6736</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <span>&copy; @DateTime.Now.Year Joymart — Đồ án học phần Lập Trình Web (HUFLIT)</span>
+                <span>Phát triển trên nền tảng ASP.NET MVC 5 &amp; Entity Framework 6</span>
+            </div>
         </div>
     </footer>
 

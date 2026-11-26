@@ -165,37 +165,6 @@ namespace Joymart.Controllers
             return RedirectToAction("Index", "Store");
         }
 
-        // Action tạo tài khoản Admin mẫu cho bài thực hành (/Account/CreateAdminForLab)
-        // Sau khi chạy 1 lần để tạo admin01 / Admin123, bạn nên comment hoặc xóa action này
-        public ActionResult CreateAdminForLab()
-        {
-            if (db.UserAccounts.Any(u => u.UserName == "admin01"))
-            {
-                return Content("Tài khoản admin01 đã tồn tại (Mật khẩu: Admin123).");
-            }
-
-            var adminRole = db.Roles.FirstOrDefault(r => r.RoleName == "Admin");
-            if (adminRole == null)
-            {
-                return Content("Không tìm thấy Role Admin trong bảng Role.");
-            }
-
-            string salt = PasswordHelper.CreateSalt();
-            var admin = new UserAccount
-            {
-                UserName = "admin01",
-                PasswordSalt = salt,
-                PasswordHash = PasswordHelper.Hash("Admin123", salt),
-                RoleID = adminRole.RoleID,
-                IsActive = true,
-                CreatedAt = DateTime.Now
-            };
-            db.UserAccounts.Add(admin);
-            db.SaveChanges();
-
-            return Content("Đã tạo thành công tài khoản Admin: admin01 / Admin123. Hãy quay lại /Account/Login để đăng nhập.");
-        }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)

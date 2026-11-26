@@ -40,6 +40,20 @@
     <Property Name="Status" Type="nvarchar" MaxLength="50" Nullable="false" />
     <Property Name="RecipientName" Type="nvarchar" MaxLength="100" />
     <Property Name="ShippingPhone" Type="nvarchar" MaxLength="20" />
+    <Property Name="ShippingFee" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+    <Property Name="ShippedDate" Type="datetime" />
+    <Property Name="CompletedDate" Type="datetime" />
+  </EntityType>
+  <EntityType Name="ProductReview">
+    <Key>
+      <PropertyRef Name="ReviewID" />
+    </Key>
+    <Property Name="ReviewID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ProductID" Type="int" Nullable="false" />
+    <Property Name="CustomerID" Type="int" Nullable="false" />
+    <Property Name="Rating" Type="int" Nullable="false" />
+    <Property Name="Comment" Type="nvarchar" MaxLength="500" Nullable="false" />
+    <Property Name="CreatedAt" Type="datetime" Nullable="false" />
   </EntityType>
   <EntityType Name="Product">
     <Key>
@@ -145,14 +159,47 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
+  <Association Name="FK_ProductReview_Product">
+    <End Role="Product" Type="Self.Product" Multiplicity="1" />
+    <End Role="ProductReview" Type="Self.ProductReview" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Product">
+        <PropertyRef Name="ProductID" />
+      </Principal>
+      <Dependent Role="ProductReview">
+        <PropertyRef Name="ProductID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_ProductReview_Customer">
+    <End Role="Customer" Type="Self.Customer" Multiplicity="1" />
+    <End Role="ProductReview" Type="Self.ProductReview" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Customer">
+        <PropertyRef Name="CustomerID" />
+      </Principal>
+      <Dependent Role="ProductReview">
+        <PropertyRef Name="CustomerID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
   <EntityContainer Name="JoymartModelStoreContainer">
     <EntitySet Name="Category" EntityType="Self.Category" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Customer" EntityType="Self.Customer" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="OrderDetail" EntityType="Self.OrderDetail" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="OrderPro" EntityType="Self.OrderPro" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Product" EntityType="Self.Product" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="ProductReview" EntityType="Self.ProductReview" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Role" EntityType="Self.Role" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="UserAccount" EntityType="Self.UserAccount" Schema="dbo" store:Type="Tables" />
+    <AssociationSet Name="FK_ProductReview_Product" Association="Self.FK_ProductReview_Product">
+      <End Role="Product" EntitySet="Product" />
+      <End Role="ProductReview" EntitySet="ProductReview" />
+    </AssociationSet>
+    <AssociationSet Name="FK_ProductReview_Customer" Association="Self.FK_ProductReview_Customer">
+      <End Role="Customer" EntitySet="Customer" />
+      <End Role="ProductReview" EntitySet="ProductReview" />
+    </AssociationSet>
     <AssociationSet Name="FK__Customer__UserID__52593CB8" Association="Self.FK__Customer__UserID__52593CB8">
       <End Role="UserAccount" EntitySet="UserAccount" />
       <End Role="Customer" EntitySet="Customer" />

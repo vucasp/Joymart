@@ -1,5 +1,6 @@
 ﻿using Joymart.Filters;
 using Joymart.Models;
+using System;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
@@ -7,15 +8,25 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Web;
 using System.Web.Mvc;
-using System;
 
 namespace Joymart.Controllers
 {
+    // =====================================================================
+    // CONTROLLER SẢN PHẨM & ĐÁNH GIÁ SẢN PHẨM (ProductsController)
+    // Bao gồm:
+    //   - Quản trị Admin: Index (kèm bộ lọc), Create, Edit, Delete
+    //   - Xử lý ảnh SaveProductImage: Đối chiếu SHA-256 tránh tạo ảnh trùng lặp
+    //   - Khách hàng: Details (hiển thị chi tiết, 4 sản phẩm liên quan cùng danh mục,
+    //                 danh sách đánh giá & điểm trung bình)
+    //   - AddReview: Chỉ cho phép thành viên đã mua sản phẩm ở đơn "Hoàn thành" đánh giá
+    // =====================================================================
     public class ProductsController : Controller
     {
         private DBJoymartEntities db = new DBJoymartEntities();
 
-        // Hàm lưu ảnh vào Content/images/products: tái sử dụng nếu trùng nội dung, tự thêm -1, -2 nếu trùng tên file khác nội dung
+        // Lưu ảnh sản phẩm vào ~/Content/images/products:
+        //   - Nếu trùng nội dung SHA-256 với file có sẵn -> tái sử dụng luôn đường dẫn cũ
+        //   - Nếu là ảnh mới -> giữ tên gốc, chỉ thêm -1, -2 nếu trùng tên nhưng khác nội dung
         private string SaveProductImage(HttpPostedFileBase imageFile, out string errorMessage)
         {
             errorMessage = null;
@@ -30,7 +41,6 @@ namespace Joymart.Controllers
                 return null;
             }
 
-            // Kiểm tra dung lượng tối đa 2MB
             if (imageFile.ContentLength > 2 * 1024 * 1024)
             {
                 errorMessage = "Dung lượng ảnh tối đa cho phép là 2MB.";
@@ -56,7 +66,6 @@ namespace Joymart.Controllers
                     uploadedBytes = ms.ToArray();
                 }
 
-                // 1. Kiểm tra xem trong thư mục products đã có ảnh giống hệt nội dung chưa
                 using (var sha256 = SHA256.Create())
                 {
                     byte[] uploadedHash = sha256.ComputeHash(uploadedBytes);
@@ -74,14 +83,12 @@ namespace Joymart.Controllers
                             byte[] existingHash = sha256.ComputeHash(fs);
                             if (uploadedHash.SequenceEqual(existingHash))
                             {
-                                // Ảnh đã có sẵn trong Content/images/products -> dùng lại luôn, không tạo file mới
                                 return "products/" + fileInfo.Name;
                             }
                         }
                     }
                 }
 
-                // 2. Nếu là ảnh mới: giữ nguyên tên gốc, chỉ thêm -1, -2 khi trùng tên với ảnh khác nội dung
                 string baseName = Path.GetFileNameWithoutExtension(originalFileName);
                 foreach (char invalidChar in Path.GetInvalidFileNameChars())
                 {
@@ -104,7 +111,6 @@ namespace Joymart.Controllers
                 }
 
                 System.IO.File.WriteAllBytes(fullPath, uploadedBytes);
-                // Trả về đường dẫn tương đối tính từ ~/Content/images/
                 return "products/" + fileName;
             }
             catch (Exception ex)
@@ -114,23 +120,7 @@ namespace Joymart.Controllers
             }
         }
 
-        // GET: Products
-        [AdminAuthorize]
-        public ActionResult Index()
-        {
-            var product = db.Products.Include(p => p.Category);
-            return View(product.ToList());
-        }
-
-        // GET: Products/Details/5
-        public ActionResult Details(int? id)
-        {
-            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            Product product = db.Products.Find(id);
-            if (product == null) return HttpNotFound();
-            return View(product);
-        }
-
+        // Kiểm tra tính hợp lệ dữ liệu sản phẩm ở phía Server
         private void ValidateProduct(Product product)
         {
             if (string.IsNullOrWhiteSpace(product.ProductName))
@@ -167,7 +157,170 @@ namespace Joymart.Controllers
             }
         }
 
-        // GET: Products/Create
+        // GET: /Products (Trang Quản lý sản phẩm cho Admin, hỗ trợ tìm kiếm & lọc)
+        [AdminAuthorize]
+        public ActionResult Index(string keyword, int? categoryId, string statusFilter)
+        {
+            var query = db.Products.Include(p => p.Category).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                keyword = keyword.Trim();
+                query = query.Where(p => p.ProductName.Contains(keyword) || p.Description.Contains(keyword));
+            }
+
+            if (categoryId.HasValue)
+            {
+                query = query.Where(p => p.CategoryID == categoryId.Value);
+            }
+
+            switch (statusFilter)
+            {
+                case "active":
+                    query = query.Where(p => p.IsActive);
+                    break;
+                case "inactive":
+                    query = query.Where(p => !p.IsActive);
+                    break;
+                case "lowstock":
+                    query = query.Where(p => p.StockQuantity > 0 && p.StockQuantity <= 5);
+                    break;
+                case "outofstock":
+                    query = query.Where(p => p.StockQuantity <= 0);
+                    break;
+            }
+
+            var model = new AdminProductListViewModel
+            {
+                Keyword = keyword,
+                CategoryId = categoryId,
+                StatusFilter = statusFilter,
+                Categories = db.Categories.OrderBy(c => c.CategoryName).ToList(),
+                Products = query.OrderByDescending(p => p.ProductID).ToList()
+            };
+
+            return View(model);
+        }
+
+        // GET: /Products/Details/5 (Trang Chi tiết sản phẩm cho khách hàng + Sản phẩm liên quan + Đánh giá)
+        public ActionResult Details(int? id)
+        {
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            OrderWorkflowHelper.SyncAutoCompletedOrders(db);
+
+            Product product = db.Products
+                .Include(p => p.Category)
+                .FirstOrDefault(p => p.ProductID == id);
+
+            if (product == null) return HttpNotFound();
+
+            // Lấy tối đa 4 sản phẩm đang kinh doanh cùng danh mục (trừ sản phẩm hiện tại)
+            var relatedProducts = db.Products
+                .Where(p => p.IsActive && p.CategoryID == product.CategoryID && p.ProductID != product.ProductID)
+                .OrderByDescending(p => p.ProductID)
+                .Take(4)
+                .ToList();
+
+            // Lấy danh sách đánh giá của sản phẩm này
+            var reviews = db.ProductReviews
+                .Include(r => r.Customer)
+                .Where(r => r.ProductID == product.ProductID)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToList();
+
+            double avgRating = reviews.Any() ? Math.Round(reviews.Average(r => r.Rating), 1) : 0.0;
+
+            // Kiểm tra khách đang đăng nhập có đơn "Hoàn thành" chứa sản phẩm này hay không
+            bool canReview = false;
+            ProductReview existingReview = null;
+            if (Session["CustomerID"] != null)
+            {
+                int customerId = (int)Session["CustomerID"];
+                canReview = db.OrderDetails.Any(d =>
+                    d.ProductID == product.ProductID &&
+                    d.OrderPro.CustomerID == customerId &&
+                    d.OrderPro.Status == "Hoàn thành");
+
+                existingReview = reviews.FirstOrDefault(r => r.CustomerID == customerId);
+            }
+
+            var model = new ProductDetailViewModel
+            {
+                Product = product,
+                RelatedProducts = relatedProducts,
+                Reviews = reviews,
+                AverageRating = avgRating,
+                CanReview = canReview,
+                ExistingUserReview = existingReview
+            };
+
+            return View(model);
+        }
+
+        // POST: /Products/AddReview (Gửi hoặc cập nhật đánh giá sản phẩm từ khách đã mua hoàn thành)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult AddReview(int productId, int rating, string comment)
+        {
+            if (Session["CustomerID"] == null)
+            {
+                TempData["CartError"] = "Vui lòng đăng nhập tài khoản khách hàng để gửi đánh giá.";
+                return RedirectToAction("Details", new { id = productId });
+            }
+
+            int customerId = (int)Session["CustomerID"];
+            OrderWorkflowHelper.SyncAutoCompletedOrders(db);
+
+            bool hasCompletedPurchase = db.OrderDetails.Any(d =>
+                d.ProductID == productId &&
+                d.OrderPro.CustomerID == customerId &&
+                d.OrderPro.Status == "Hoàn thành");
+
+            if (!hasCompletedPurchase)
+            {
+                TempData["CartError"] = "Chỉ khách hàng đã mua sản phẩm này trong đơn hàng Hoàn thành mới có thể gửi đánh giá.";
+                return RedirectToAction("Details", new { id = productId });
+            }
+
+            if (rating < 1 || rating > 5)
+            {
+                TempData["CartError"] = "Điểm đánh giá phải từ 1 đến 5.";
+                return RedirectToAction("Details", new { id = productId });
+            }
+
+            if (string.IsNullOrWhiteSpace(comment) || comment.Trim().Length > 500)
+            {
+                TempData["CartError"] = "Nội dung nhận xét không được để trống và tối đa 500 ký tự.";
+                return RedirectToAction("Details", new { id = productId });
+            }
+
+            var existing = db.ProductReviews.FirstOrDefault(r => r.ProductID == productId && r.CustomerID == customerId);
+            if (existing != null)
+            {
+                existing.Rating = rating;
+                existing.Comment = comment.Trim();
+                existing.CreatedAt = DateTime.Now;
+                TempData["ReviewSuccess"] = "Đã cập nhật đánh giá sản phẩm của bạn thành công.";
+            }
+            else
+            {
+                db.ProductReviews.Add(new ProductReview
+                {
+                    ProductID = productId,
+                    CustomerID = customerId,
+                    Rating = rating,
+                    Comment = comment.Trim(),
+                    CreatedAt = DateTime.Now
+                });
+                TempData["ReviewSuccess"] = "Cảm ơn bạn đã gửi đánh giá cho sản phẩm!";
+            }
+
+            db.SaveChanges();
+            return RedirectToAction("Details", new { id = productId });
+        }
+
+        // GET: /Products/Create
         [AdminAuthorize]
         public ActionResult Create()
         {
@@ -175,7 +328,7 @@ namespace Joymart.Controllers
             return View(new Product { IsActive = true, StockQuantity = 1 });
         }
 
-        // POST: Products/Create
+        // POST: /Products/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AdminAuthorize]
@@ -201,7 +354,7 @@ namespace Joymart.Controllers
             {
                 db.Products.Add(product);
                 db.SaveChanges();
-                TempData["ProductMsg"] = "Đã thêm sản phẩm \"" + product.ProductName + "\" thành công.";
+                TempData["ProductMsg"] = "Đã thêm sản phẩm \"" + product.ProductName + "\" thành công (tự động đồng bộ vào Kho hàng).";
                 return RedirectToAction("Index");
             }
 
@@ -209,7 +362,7 @@ namespace Joymart.Controllers
             return View(product);
         }
 
-        // GET: Products/Edit
+        // GET: /Products/Edit/5
         [AdminAuthorize]
         public ActionResult Edit(int? id)
         {
@@ -220,6 +373,7 @@ namespace Joymart.Controllers
             return View(product);
         }
 
+        // POST: /Products/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AdminAuthorize]
@@ -227,8 +381,6 @@ namespace Joymart.Controllers
         {
             ValidateProduct(product);
 
-            // Nếu admin chọn ảnh mới thì lưu ảnh mới và cập nhật ImageUrl
-            // Nếu không chọn ảnh mới, @Html.HiddenFor(m => m.ImageUrl) trên View sẽ tự giữ nguyên ảnh cũ
             if (ImageFile != null && ImageFile.ContentLength > 0)
             {
                 string uploadError;
@@ -255,7 +407,7 @@ namespace Joymart.Controllers
             return View(product);
         }
 
-        // GET: Products/Delete/5
+        // GET: /Products/Delete/5
         [AdminAuthorize]
         public ActionResult Delete(int? id)
         {
@@ -265,30 +417,30 @@ namespace Joymart.Controllers
             return View(product);
         }
 
-        // POST: Products/Delete/5
+        // POST: /Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [AdminAuthorize]
         public ActionResult DeleteConfirmed(int id)
         {
-            Product product = db.Products.Find(id); // Lưu ý: đổi thành db.Product.Find(id) nếu DbSet của bạn đặt tên số ít
+            Product product = db.Products.Find(id);
             if (product == null)
             {
                 return HttpNotFound();
             }
 
-            // Kiểm tra sản phẩm đã từng phát sinh trong đơn hàng chưa
             bool hasOrderHistory = db.OrderDetails.Any(d => d.ProductID == id);
-            if (hasOrderHistory)
+            bool hasReviews = db.ProductReviews.Any(r => r.ProductID == id);
+
+            if (hasOrderHistory || hasReviews)
             {
-                // Chuyển sang ngừng kinh doanh thay vì xóa cứng
                 product.IsActive = false;
                 db.SaveChanges();
-                TempData["ProductMsg"] = "Sản phẩm \"" + product.ProductName + "\" đã có trong lịch sử đơn hàng nên hệ thống tự động chuyển sang trạng thái Ngừng bán.";
+                TempData["ProductMsg"] = "Sản phẩm \"" + product.ProductName + "\" đã phát sinh đơn hàng/đánh giá nên hệ thống tự động chuyển sang trạng thái Ngừng bán.";
             }
             else
             {
-                db.Products.Remove(product); // Đổi thành db.Product.Remove(product) nếu DbSet số ít
+                db.Products.Remove(product);
                 db.SaveChanges();
                 TempData["ProductMsg"] = "Đã xóa vĩnh viễn sản phẩm \"" + product.ProductName + "\".";
             }

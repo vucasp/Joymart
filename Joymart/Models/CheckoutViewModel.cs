@@ -2,6 +2,7 @@
 
 namespace Joymart.Models
 {
+    // ViewModel thu thập thông tin người nhận khi Đặt hàng (/ShoppingCart/Checkout)
     public class CheckoutViewModel
     {
         [Required(ErrorMessage = "Vui lòng nhập họ tên người nhận.")]
@@ -26,5 +27,15 @@ namespace Joymart.Models
         public string ShippingAddress { get; set; }
 
         public Cart Cart { get; set; }
+    }
+
+    // ViewModel phục vụ chức năng Tra cứu đơn hàng dành cho Khách vãng lai (/ShoppingCart/TrackOrder)
+    public class TrackOrderViewModel
+    {
+        public int? OrderID { get; set; }
+        public string Phone { get; set; }
+        public bool Searched { get; set; }
+        public string ErrorMessage { get; set; }
+        public OrderPro FoundOrder { get; set; }
     }
 }

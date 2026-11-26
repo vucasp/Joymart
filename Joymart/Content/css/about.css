@@ -1,0 +1,217 @@
+﻿/* =====================================================================
+   FILE: Content/css/about.css
+   MỤC ĐÍCH:
+     - Giao diện trang Giới thiệu (Store/AboutStore):
+       Hero câu chuyện thương hiệu, Thẻ thông tin thành viên & Bảng phân công.
+   ===================================================================== */
+
+.about-hero {
+    margin: 28px 0 32px;
+    padding: 42px 40px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #ffffff 0%, #fff0f5 55%, #eef8fd 100%);
+    border: 1.5px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 32px;
+    align-items: center;
+}
+
+    .about-hero h1 {
+        margin: 10px 0 14px;
+        font-size: 32px;
+        font-weight: 900;
+        color: var(--ink);
+        line-height: 1.25;
+        letter-spacing: -0.5px;
+    }
+
+        .about-hero h1 span {
+            color: var(--brand-dark);
+        }
+
+    .about-hero p {
+        margin: 0 0 14px;
+        font-size: 15.5px;
+        line-height: 1.7;
+        color: #524156;
+    }
+
+.about-highlights {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.about-highlight-box {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 20px;
+    box-shadow: 0 4px 12px rgba(232, 93, 136, 0.06);
+}
+
+    .about-highlight-box strong {
+        display: block;
+        font-size: 24px;
+        font-weight: 900;
+        color: var(--brand-dark);
+        margin-bottom: 4px;
+    }
+
+    .about-highlight-box span {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+    }
+
+/* Đội ngũ phát triển */
+.about-section-block {
+    margin: 36px 0;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+    margin-top: 18px;
+}
+
+.team-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 28px 22px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+    .team-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(255, 122, 162, 0.55);
+        box-shadow: var(--shadow-hover);
+    }
+
+.team-avatar {
+    width: 112px;
+    height: 112px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    padding: 4px;
+    background: linear-gradient(135deg, #ff7aa2, #8ecae6, #ffd166);
+    box-shadow: 0 8px 20px rgba(255, 122, 162, 0.22);
+}
+
+    .team-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        background: #fff5f8;
+        display: block;
+    }
+
+.team-name {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--ink);
+    margin: 0 0 8px;
+}
+
+.team-role-badge {
+    display: inline-block;
+    background: var(--brand-soft);
+    color: var(--brand-dark);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 16px;
+}
+
+.team-contact {
+    list-style: none;
+    padding: 14px 0 0;
+    margin: 0;
+    border-top: 1px solid var(--line);
+    text-align: left;
+    font-size: 13.5px;
+    color: #5c4b60;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+    .team-contact li {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        word-break: break-word;
+    }
+
+    .team-contact strong {
+        color: var(--ink);
+        min-width: 78px;
+    }
+
+/* Bảng phân công nhiệm vụ */
+.task-panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    margin-top: 18px;
+}
+
+.task-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+    .task-table thead {
+        background: linear-gradient(90deg, var(--brand) 0%, var(--brand-dark) 100%);
+        color: #ffffff;
+    }
+
+    .task-table th {
+        padding: 15px 18px;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .task-table td {
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--line);
+        font-size: 14px;
+        color: #4a3b4e;
+        vertical-align: top;
+        line-height: 1.6;
+    }
+
+    .task-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+.task-list-items {
+    margin: 0;
+    padding-left: 18px;
+}
+
+    .task-list-items li {
+        margin-bottom: 5px;
+    }
+
+@media (max-width: 992px) {
+    .about-hero {
+        grid-template-columns: 1fr;
+        padding: 28px 24px;
+    }
+
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+}

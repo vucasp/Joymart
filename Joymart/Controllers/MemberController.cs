@@ -1,4 +1,5 @@
 ﻿using Joymart.Models;
+using System;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
@@ -6,20 +7,27 @@ using System.Web.Mvc;
 
 namespace Joymart.Controllers
 {
+    // =====================================================================
+    // CONTROLLER TÀI KHOẢN THÀNH VIÊN (MemberController)
+    // Bao gồm:
+    //   - MyOrders: Lịch sử đơn mua của thành viên (hỗ trợ lọc tab trạng thái).
+    //   - OrderDetails: Chi tiết đơn mua.
+    //   - CancelOrder: Khách tự hủy đơn khi đang ở trạng thái "Chờ xử lý" (hoàn kho).
+    //   - ConfirmReceived: Khách chủ động bấm "Đã nhận được hàng" khi đơn "Đang giao"
+    //     (nếu sau 7 ngày chưa bấm, OrderWorkflowHelper sẽ tự động xác nhận Hoàn thành).
+    //   - Profile & ChangePassword: Cập nhật hồ sơ và đổi mật khẩu.
+    // =====================================================================
     public class MemberController : Controller
     {
         private DBJoymartEntities db = new DBJoymartEntities();
 
-        // Kiểm tra đã đăng nhập hay chưa
         private bool IsLoggedIn()
         {
             return Session["UserID"] != null;
         }
 
-        // =====================================================
-        // 1. LỊCH SỬ ĐƠN HÀNG CỦA TÔI (/Member/MyOrders)
-        // =====================================================
-        public ActionResult MyOrders()
+        // GET: /Member/MyOrders
+        public ActionResult MyOrders(string status)
         {
             if (!IsLoggedIn())
             {
@@ -33,17 +41,24 @@ namespace Joymart.Controllers
             }
 
             int customerId = (int)Session["CustomerID"];
-            var orders = db.OrderProes
-                .Where(o => o.CustomerID == customerId)
-                .OrderByDescending(o => o.OrderID)
-                .ToList();
+            OrderWorkflowHelper.SyncAutoCompletedOrders(db);
+
+            var query = db.OrderProes
+                .Include(o => o.OrderDetails)
+                .Where(o => o.CustomerID == customerId);
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(o => o.Status == status);
+            }
+
+            ViewBag.SelectedStatus = status;
+            var orders = query.OrderByDescending(o => o.OrderID).ToList();
 
             return View(orders);
         }
 
-        // =====================================================
-        // 2. CHI TIẾT ĐƠN HÀNG CỦA TÔI (/Member/OrderDetails/5)
-        // =====================================================
+        // GET: /Member/OrderDetails/5
         public ActionResult OrderDetails(int? id)
         {
             if (!IsLoggedIn())
@@ -57,8 +72,8 @@ namespace Joymart.Controllers
             }
 
             int customerId = (int)Session["CustomerID"];
+            OrderWorkflowHelper.SyncAutoCompletedOrders(db);
 
-            // Chỉ lấy đúng đơn hàng thuộc về khách hàng đang đăng nhập
             var order = db.OrderProes
                 .Include(o => o.Customer)
                 .Include(o => o.OrderDetails.Select(d => d.Product))
@@ -72,9 +87,7 @@ namespace Joymart.Controllers
             return View(order);
         }
 
-        // =====================================================
-        // 3. KHÁCH TỰ HỦY ĐƠN KHI CÒN "CHỜ XỬ LÝ" + HOÀN TỒN KHO
-        // =====================================================
+        // POST: /Member/CancelOrder (Khách tự hủy đơn khi đang "Chờ xử lý" + hoàn trả tồn kho)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult CancelOrder(int orderId)
@@ -106,7 +119,6 @@ namespace Joymart.Controllers
                 {
                     order.Status = "Đã hủy";
 
-                    // Hoàn trả số lượng tồn kho cho từng sản phẩm
                     foreach (var detail in order.OrderDetails)
                     {
                         var product = db.Products.Find(detail.ProductID);
@@ -128,12 +140,43 @@ namespace Joymart.Controllers
                 }
             }
 
+            return RedirectToAction("MyOrders");
+        }
+
+        // POST: /Member/ConfirmReceived (Người dùng xác nhận "Đã nhận được hàng" khi đơn "Đang giao")
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ConfirmReceived(int orderId)
+        {
+            if (!IsLoggedIn() || Session["CustomerID"] == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            int customerId = (int)Session["CustomerID"];
+            var order = db.OrderProes
+                .FirstOrDefault(o => o.OrderID == orderId && o.CustomerID == customerId);
+
+            if (order == null)
+            {
+                return HttpNotFound();
+            }
+
+            if (order.Status != "Đang giao")
+            {
+                TempData["MemberError"] = "Chỉ có thể xác nhận nhận hàng đối với đơn đang ở trạng thái \"Đang giao\".";
+                return RedirectToAction("OrderDetails", new { id = orderId });
+            }
+
+            order.Status = "Hoàn thành";
+            order.CompletedDate = DateTime.Now;
+            db.SaveChanges();
+
+            TempData["MemberSuccess"] = "Cảm ơn bạn đã xác nhận nhận hàng thành công cho đơn #" + orderId + "! Giờ bạn đã có thể đánh giá sản phẩm trong đơn.";
             return RedirectToAction("OrderDetails", new { id = orderId });
         }
 
-        // =====================================================
-        // 4. CẬP NHẬT HỒ SƠ CÁ NHÂN (/Member/Profile)
-        // =====================================================
+        // GET: /Member/Profile
         [HttpGet]
         public ActionResult Profile()
         {
@@ -166,6 +209,7 @@ namespace Joymart.Controllers
             return View(model);
         }
 
+        // POST: /Member/Profile
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Profile(ProfileViewModel model)
@@ -195,16 +239,13 @@ namespace Joymart.Controllers
             customer.Address = model.Address;
             db.SaveChanges();
 
-            // Cập nhật lại tên hiển thị trên thanh Navbar
             Session["FullName"] = customer.FullName;
 
             TempData["MemberSuccess"] = "Cập nhật thông tin hồ sơ thành công!";
             return RedirectToAction("Profile");
         }
 
-        // =====================================================
-        // 5. ĐỔI MẬT KHẨU (/Member/ChangePassword)
-        // =====================================================
+        // GET: /Member/ChangePassword
         [HttpGet]
         public ActionResult ChangePassword()
         {
@@ -216,6 +257,7 @@ namespace Joymart.Controllers
             return View();
         }
 
+        // POST: /Member/ChangePassword
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult ChangePassword(ChangePasswordViewModel model)
@@ -237,14 +279,12 @@ namespace Joymart.Controllers
                 return HttpNotFound();
             }
 
-            // Kiểm tra mật khẩu cũ
             if (!PasswordHelper.Verify(model.OldPassword, account.PasswordSalt, account.PasswordHash))
             {
                 ModelState.AddModelError("OldPassword", "Mật khẩu hiện tại không chính xác.");
                 return View(model);
             }
 
-            // Tạo Salt & Hash mới
             string newSalt = PasswordHelper.CreateSalt();
             account.PasswordSalt = newSalt;
             account.PasswordHash = PasswordHelper.Hash(model.NewPassword, newSalt);

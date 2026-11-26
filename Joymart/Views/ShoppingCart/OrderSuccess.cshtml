@@ -1,16 +1,25 @@
-﻿@model Joymart.Models.OrderPro
+﻿@* =====================================================================
+   VIEW: Views/ShoppingCart/OrderSuccess.cshtml
+   MỤC ĐÍCH:
+     Hiển thị xác nhận đơn hàng vừa đặt thành công, kèm mã đơn hàng để
+     khách vãng lai có thể lưu lại tra cứu tiến độ giao hàng về sau.
+   ===================================================================== *@
+@model Joymart.Models.OrderPro
 @using System.Linq
 
 @{
     ViewBag.Title = "Đặt hàng thành công";
     Layout = "~/Views/Shared/_StoreLayout.cshtml";
+    decimal subTotal = Model.OrderDetails.Sum(d => d.Quantity * d.UnitPrice);
 }
 
 <div class="order-success">
     <div class="order-success-head">
         <span class="status-badge status-active" style="margin-bottom: 10px;">ĐẶT HÀNG THÀNH CÔNG</span>
         <h2 class="section-title" style="margin-top: 6px;">Cảm ơn bạn đã mua sắm tại Joymart!</h2>
-        <p style="color: var(--muted); margin-top: 8px;">Đơn hàng của bạn đã được ghi nhận vào hệ thống và đang chờ xử lý.</p>
+        <p style="color: var(--muted); margin-top: 8px; margin-bottom: 0;">
+            Vui lòng lưu lại <strong>Mã đơn hàng #@Model.OrderID</strong> và số điện thoại <strong>@Model.ShippingPhone</strong> để tra cứu tình trạng giao hàng bất kỳ lúc nào.
+        </p>
     </div>
 
     <div class="order-info-grid">
@@ -19,9 +28,10 @@
             <p><strong>Mã đơn hàng:</strong> #@Model.OrderID</p>
             <p><strong>Ngày đặt:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
             <p><strong>Trạng thái:</strong> <span class="product-category-tag" style="margin: 0;">@Model.Status</span></p>
-            <p><strong>Tổng số lượng:</strong> @Model.OrderDetails.Sum(d => d.Quantity) sản phẩm</p>
+            <p><strong>Tiền hàng tạm tính:</strong> @subTotal.ToString("#,##0") đ</p>
+            <p><strong>Phí vận chuyển:</strong> @(Model.ShippingFee == 0 ? "Miễn phí (0 đ)" : Model.ShippingFee.ToString("#,##0") + " đ")</p>
             <p>
-                <strong>Tổng tiền:</strong>
+                <strong>Tổng thanh toán:</strong>
                 <span class="product-price">@Model.TotalAmount.ToString("#,##0") đ</span>
             </p>
         </div>
@@ -52,7 +62,9 @@
                     <tr>
                         <td>
                             <div class="cart-product">
-                                <img src="~/Content/images/@(string.IsNullOrEmpty(detail.Product.ImageUrl) ? "no-image.png" : detail.Product.ImageUrl)" alt="@detail.Product.ProductName" onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
+                                <img src="~/Content/images/@(string.IsNullOrEmpty(detail.Product.ImageUrl) ? "no-image.png" : detail.Product.ImageUrl)"
+                                     alt="@detail.Product.ProductName"
+                                     onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
                                 <strong>@detail.Product.ProductName</strong>
                             </div>
                         </td>
@@ -67,5 +79,6 @@
 
     <div class="order-success-actions">
         @Html.ActionLink("Tiếp tục mua hàng", "Index", "Store", null, new { @class = "btn-brand" })
+        @Html.ActionLink("Tra cứu tiến độ đơn hàng", "TrackOrder", "ShoppingCart", new { orderId = Model.OrderID, phone = Model.ShippingPhone }, new { @class = "btn-soft" })
     </div>
 </div>

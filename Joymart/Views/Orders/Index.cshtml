@@ -1,16 +1,60 @@
-﻿@model IEnumerable<Joymart.Models.OrderPro>
+﻿@* =====================================================================
+   VIEW: Views/Orders/Index.cshtml
+   MỤC ĐÍCH:
+     Trang Quản lý đơn hàng của Admin:
+       - Đơn "Chờ xử lý": Nút "Xác nhận" -> sang Xuất hàng / Giao hàng.
+       - Đơn "Đã xác nhận": Đổi nút thành "Giao hàng" -> sang Xuất hàng / Giao hàng.
+       - Đơn "Đang giao": Không thể hủy đơn (nút Hủy đơn bị vô hiệu hóa).
+   ===================================================================== *@
+@model Joymart.Models.AdminOrderFilterViewModel
 
 @{
     ViewBag.Title = "Quản lý đơn hàng";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    string[] statuses = { "Chờ xử lý", "Đã xác nhận", "Đang giao", "Hoàn thành", "Đã hủy" };
 }
 
 <div class="admin-panel">
     <div class="admin-toolbar">
-        <h2 class="section-title">Quản lý đơn hàng</h2>
-        <span style="color: var(--muted); font-size: 14px; font-weight: 600;">
-            Tổng cộng: <strong style="color: var(--brand-dark);">@Model.Count()</strong> đơn hàng
-        </span>
+        <div>
+            <h2 class="section-title">Danh sách đơn đặt hàng</h2>
+            <small style="color: #64748b; display: block; margin-top: 4px;">
+                Hiển thị: <strong>@Model.Orders.Count</strong> đơn hàng • Đơn đang giao không thể hủy.
+            </small>
+        </div>
+        <a href="@Url.Action("Delivering", "Orders")" class="btn-brand">
+            Theo dõi đơn đang giao (@Model.DeliveringCount)
+        </a>
+    </div>
+
+    @if (TempData["OrderSuccessMsg"] != null)
+    {
+        <div class="cart-message cart-message-success">@TempData["OrderSuccessMsg"]</div>
+    }
+    @if (TempData["OrderErrorMsg"] != null)
+    {
+        <div class="cart-message cart-message-error">@TempData["OrderErrorMsg"]</div>
+    }
+
+    <div class="catalog-toolbar" style="background: #f8fafc; border-color: #e2e8f0; margin-bottom: 20px;">
+        @using (Html.BeginForm("Index", "Orders", FormMethod.Get, new { @class = "catalog-search" }))
+        {
+            <input type="text" name="keyword" value="@Model.Keyword" placeholder="Mã đơn, tên người nhận hoặc SĐT..." />
+
+            <select name="statusFilter">
+                <option value="">Tất cả trạng thái</option>
+                @foreach (var st in statuses)
+                {
+                    <option value="@st" @(Model.StatusFilter == st ? "selected" : "")>@st</option>
+                }
+            </select>
+
+            <input type="date" name="fromDate" value="@(Model.FromDate.HasValue ? Model.FromDate.Value.ToString("yyyy-MM-dd") : "")" title="Từ ngày" />
+            <input type="date" name="toDate" value="@(Model.ToDate.HasValue ? Model.ToDate.Value.ToString("yyyy-MM-dd") : "")" title="Đến ngày" />
+
+            <button type="submit" class="btn-brand">Lọc đơn</button>
+            <a class="btn-soft" href="@Url.Action("Index", "Orders")">Đặt lại</a>
+        }
     </div>
 
     <div style="overflow-x: auto;">
@@ -22,14 +66,17 @@
                     <th>Người nhận</th>
                     <th>Số điện thoại</th>
                     <th>Loại khách</th>
-                    <th>Tổng tiền</th>
+                    <th>Tổng thanh toán</th>
                     <th>Trạng thái</th>
                     <th>Thao tác</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
+                @foreach (var item in Model.Orders)
                 {
+                    // Chỉ hủy được khi đơn chưa xuất kho giao hàng (Chờ xử lý hoặc Đã xác nhận)
+                    bool canCancel = (item.Status == "Chờ xử lý" || item.Status == "Đã xác nhận");
+
                     <tr>
                         <td><strong>#@item.OrderID</strong></td>
                         <td>@item.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
@@ -47,13 +94,44 @@
                         </td>
                         <td><strong style="color: #e11d48;">@item.TotalAmount.ToString("#,##0") đ</strong></td>
                         <td>
-                            <span class="status-badge @(item.Status == "Hoàn thành" ? "status-active" : (item.Status == "Đã hủy" ? "status-inactive" : ""))"
-                                  style="@(item.Status != "Hoàn thành" && item.Status != "Đã hủy" ? "background:#fef3c7; color:#b45309;" : "")">
+                            <span class="status-badge @(item.Status == "Hoàn thành" ? "status-active" : (item.Status == "Đã hủy" ? "status-inactive" : (item.Status == "Đang giao" ? "status-info" : "status-warning")))">
                                 @item.Status
                             </span>
                         </td>
-                        <td>
-                            @Html.ActionLink("Chi tiết & Xử lý", "Details", new { id = item.OrderID }, new { @class = "btn-soft", style = "padding: 6px 12px; font-size: 13px;" })
+                        <td style="white-space: nowrap;">
+                            <div style="display: inline-flex; gap: 6px; align-items: center;">
+                                @* Nút 1: Chi tiết *@
+                                @Html.ActionLink("Chi tiết", "Details", new { id = item.OrderID }, new { @class = "btn-soft", style = "padding: 6px 11px; font-size: 12.5px;" })
+
+                                @* Nút 2: "Xác nhận" (nếu Chờ xử lý) hoặc đổi thành "Giao hàng" (nếu Đã xác nhận) *@
+                                @if (item.Status == "Chờ xử lý")
+                                {
+                                    @Html.ActionLink("Xác nhận", "Dispatch", new { id = item.OrderID }, new { @class = "btn-brand", style = "padding: 6px 11px; font-size: 12.5px;" })
+                                }
+                                else if (item.Status == "Đã xác nhận")
+                                {
+                                    @Html.ActionLink("Giao hàng", "Dispatch", new { id = item.OrderID }, new { @class = "btn-brand", style = "padding: 6px 11px; font-size: 12.5px; background: #0284c7; box-shadow: none;" })
+                                }
+                                else
+                                {
+                                    <span class="btn-disabled" style="padding: 6px 11px; font-size: 12.5px;">Xác nhận</span>
+                                }
+
+                                @* Nút 3: Hủy đơn (vô hiệu hóa đối với đơn Đang giao, Hoàn thành, Đã hủy) *@
+                                @if (canCancel)
+                                {
+                                    using (Html.BeginForm("CancelOrder", "Orders", FormMethod.Post, new { style = "margin:0;", onsubmit = "return confirm('Bạn có chắc muốn hủy đơn hàng #" + item.OrderID + " và hoàn trả sản phẩm về kho?');" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="orderId" value="@item.OrderID" />
+                                        <button type="submit" class="btn-danger-soft" style="padding: 6px 11px; font-size: 12.5px;">Hủy đơn</button>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="btn-disabled" style="padding: 6px 11px; font-size: 12.5px;">Hủy đơn</span>
+                                }
+                            </div>
                         </td>
                     </tr>
                 }

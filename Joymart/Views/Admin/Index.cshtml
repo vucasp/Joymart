@@ -1,69 +1,169 @@
-﻿@model Joymart.Models.AdminDashboardViewModel
+﻿@* =====================================================================
+   VIEW: Views/Admin/Index.cshtml
+   MỤC ĐÍCH:
+     Bảng điều khiển tổng quan của Admin:
+       - 4 thẻ chỉ số KPI (Doanh thu, Đơn hàng & Đang giao, Kho hàng, Tài khoản)
+       - Biểu đồ tỷ lệ đơn hàng theo trạng thái bằng CSS thuần
+       - Bảng Cảnh báo sản phẩm sắp hết kho (<= 5) & Top 5 sản phẩm bán chạy
+       - Danh sách 5 đơn hàng gần nhất
+   ===================================================================== *@
+@model Joymart.Models.AdminDashboardViewModel
 
 @{
     ViewBag.Title = "Bảng điều khiển tổng quan";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<!-- KHỐI THỐNG KÊ NHANH (KPI) -->
+<!-- 4 THẺ CHỈ SỐ KPI CHÍNH -->
 <div class="admin-kpi-grid">
     <div class="admin-kpi-card">
-        <span class="admin-kpi-label">Tổng doanh thu (đơn hợp lệ)</span>
+        <span class="admin-kpi-label">Doanh thu đơn hợp lệ</span>
         <div class="admin-kpi-value" style="color: #e11d48;">@Model.TotalRevenue.ToString("#,##0") đ</div>
-        <span class="admin-kpi-sub">Không tính các đơn đã hủy</span>
+        <span class="admin-kpi-sub">Không bao gồm các đơn đã hủy</span>
     </div>
 
     <div class="admin-kpi-card">
-        <span class="admin-kpi-label">Đơn đặt hàng</span>
+        <span class="admin-kpi-label">Tổng đơn đặt hàng</span>
         <div class="admin-kpi-value">@Model.TotalOrders</div>
-        <span class="admin-kpi-sub">Đang chờ xử lý: <strong style="color: #d97706;">@Model.PendingOrders đơn</strong></span>
+        <span class="admin-kpi-sub">
+            Chờ xuất: <strong style="color: #d97706;">@Model.PendingOrders</strong> •
+            Đang giao: <strong style="color: #0369a1;">@Model.DeliveringOrders</strong>
+        </span>
     </div>
 
     <div class="admin-kpi-card">
-        <span class="admin-kpi-label">Sản phẩm &amp; Danh mục</span>
-        <div class="admin-kpi-value">@Model.TotalProducts</div>
-        <span class="admin-kpi-sub">Đang bán: <strong>@Model.ActiveProducts</strong> • <strong>@Model.TotalCategories</strong> danh mục</span>
+        <span class="admin-kpi-label">Tồn kho hệ thống</span>
+        <div class="admin-kpi-value">@Model.TotalStockUnits</div>
+        <span class="admin-kpi-sub">
+            <strong>@Model.TotalProducts</strong> mặt hàng •
+            Sắp hết/Hết: <strong style="color: #dc2626;">@Model.LowStockCount</strong>
+        </span>
     </div>
 
     <div class="admin-kpi-card">
-        <span class="admin-kpi-label">Tài khoản hệ thống</span>
+        <span class="admin-kpi-label">Tài khoản người dùng</span>
         <div class="admin-kpi-value">@Model.TotalUsers</div>
         <span class="admin-kpi-sub"><strong>@Model.AdminCount</strong> Admin • <strong>@Model.CustomerCount</strong> Khách hàng</span>
     </div>
 </div>
 
-<!-- KHỐI PHÂN HỆ QUẢN LÝ NHANH -->
-<div class="admin-grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 0; margin-bottom: 24px;">
-    <a class="admin-dashboard-card" href="@Url.Action("Index", "Products")">
-        <span class="product-category-tag">KHO HÀNG</span>
-        <h3>Quản lý sản phẩm</h3>
-        <p>Thêm sản phẩm mới, cập nhật giá bán, số lượng tồn kho và hình ảnh hiển thị trên cửa hàng.</p>
-    </a>
+<!-- BIỂU ĐỒ TRẠNG THÁI ĐƠN HÀNG (CSS) & CẢNH BÁO SẮP HẾT KHO -->
+<div class="admin-report-grid">
+    <div class="admin-panel" style="margin-bottom: 0;">
+        <div class="admin-toolbar">
+            <h2 class="section-title" style="font-size: 19px;">Tỷ lệ đơn hàng theo trạng thái</h2>
+            @Html.ActionLink("Theo dõi đang giao", "Delivering", "Orders", null, new { @class = "btn-soft", style = "padding: 6px 12px; font-size: 13px;" })
+        </div>
 
-    <a class="admin-dashboard-card" href="@Url.Action("Index", "Categories")">
-        <span class="product-category-tag">PHÂN LOẠI</span>
-        <h3>Quản lý danh mục</h3>
-        <p>Tổ chức và chỉnh sửa các nhóm ngành hàng kinh doanh trên hệ thống Joymart.</p>
-    </a>
+        <div class="css-bar-list">
+            @foreach (var st in Model.StatusBreakdown)
+            {
+                <div class="css-bar-row">
+                    <div class="css-bar-header">
+                        <span>@st.StatusName</span>
+                        <span><strong>@st.OrderCount</strong> đơn (@st.Percentage%)</span>
+                    </div>
+                    <div class="css-bar-track">
+                        <div class="css-bar-fill" style="width: @(st.Percentage)%;"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 
-    <a class="admin-dashboard-card" href="@Url.Action("Index", "Orders")">
-        <span class="product-category-tag">VẬN HÀNH</span>
-        <h3>Quản lý đơn hàng</h3>
-        <p>Theo dõi đơn đặt hàng của khách, xem chi tiết sản phẩm và cập nhật trạng thái giao hàng.</p>
-    </a>
+    <div class="admin-panel" style="margin-bottom: 0;">
+        <div class="admin-toolbar">
+            <h2 class="section-title" style="font-size: 19px;">Cảnh báo sản phẩm sắp hết kho</h2>
+            @Html.ActionLink("Mở quản lý kho", "Index", "Inventory", new { stockStatus = "low" }, new { @class = "btn-soft", style = "padding: 6px 12px; font-size: 13px;" })
+        </div>
 
-    <a class="admin-dashboard-card" href="@Url.Action("Index", "Users")">
-        <span class="product-category-tag">PHÂN QUYỀN</span>
-        <h3>Quản lý tài khoản &amp; Cấp quyền Admin</h3>
-        <p>Xem danh sách tài khoản hệ thống, cấp hoặc thu hồi quyền Admin, khóa/mở khóa và tạo tài khoản mới.</p>
-    </a>
+        @if (Model.LowStockProducts != null && Model.LowStockProducts.Any())
+        {
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Danh mục</th>
+                        <th>Còn lại</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model.LowStockProducts)
+                    {
+                        <tr>
+                            <td><strong>@p.ProductName</strong></td>
+                            <td>@p.Category.CategoryName</td>
+                            <td>
+                                <span class="status-badge @(p.StockQuantity <= 0 ? "status-inactive" : "status-warning")">
+                                    @p.StockQuantity sản phẩm
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p style="color: #64748b; margin: 0;">Tất cả mặt hàng trong kho đều còn trên 5 đơn vị.</p>
+        }
+    </div>
+</div>
+
+<!-- TOP 5 SẢN PHẨM BÁN CHẠY NHẤT -->
+<div class="admin-panel">
+    <div class="admin-toolbar">
+        <h2 class="section-title" style="font-size: 19px;">Top 5 sản phẩm bán chạy nhất</h2>
+        @Html.ActionLink("Quản lý sản phẩm", "Index", "Products", null, new { @class = "btn-soft" })
+    </div>
+
+    @if (Model.TopSellingProducts != null && Model.TopSellingProducts.Any())
+    {
+        <div style="overflow-x: auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Danh mục</th>
+                        <th>Số lượng đã bán</th>
+                        <th>Doanh thu mang lại</th>
+                        <th>Tồn kho hiện tại</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var top in Model.TopSellingProducts)
+                    {
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <img src="~/Content/images/@(string.IsNullOrEmpty(top.ImageUrl) ? "no-image.png" : top.ImageUrl)"
+                                         alt="@top.ProductName"
+                                         onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';"
+                                         style="width: 46px; height: 46px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0;" />
+                                    <strong>@top.ProductName</strong>
+                                </div>
+                            </td>
+                            <td><span class="product-category-tag" style="margin:0;">@top.CategoryName</span></td>
+                            <td><strong>@top.TotalSold</strong> sản phẩm</td>
+                            <td><strong style="color: #e11d48;">@top.TotalRevenue.ToString("#,##0") đ</strong></td>
+                            <td><strong>@top.StockQuantity</strong></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <p style="color: #64748b; margin: 0;">Chưa có dữ liệu sản phẩm bán ra.</p>
+    }
 </div>
 
 <!-- ĐƠN HÀNG GẦN ĐÂY -->
-<div class="admin-panel">
+<div class="admin-panel" style="margin-bottom: 0;">
     <div class="admin-toolbar">
-        <h2 class="section-title" style="font-size: 20px;">Đơn đặt hàng gần đây</h2>
-        @Html.ActionLink("Xem tất cả đơn hàng →", "Index", "Orders", null, new { @class = "btn-soft" })
+        <h2 class="section-title" style="font-size: 19px;">Đơn đặt hàng mới nhất</h2>
+        @Html.ActionLink("Xem tất cả đơn hàng", "Index", "Orders", null, new { @class = "btn-soft" })
     </div>
 
     @if (Model.RecentOrders != null && Model.RecentOrders.Any())
@@ -75,7 +175,7 @@
                         <th>Mã đơn</th>
                         <th>Ngày đặt</th>
                         <th>Người nhận</th>
-                        <th>Tổng tiền</th>
+                        <th>Tổng thanh toán</th>
                         <th>Trạng thái</th>
                         <th>Thao tác</th>
                     </tr>
@@ -89,8 +189,7 @@
                             <td><strong>@(item.RecipientName ?? (item.Customer != null ? item.Customer.FullName : ""))</strong></td>
                             <td><strong style="color: #e11d48;">@item.TotalAmount.ToString("#,##0") đ</strong></td>
                             <td>
-                                <span class="status-badge @(item.Status == "Hoàn thành" ? "status-active" : (item.Status == "Đã hủy" ? "status-inactive" : ""))"
-                                      style="@(item.Status != "Hoàn thành" && item.Status != "Đã hủy" ? "background:#fef3c7; color:#b45309;" : "")">
+                                <span class="status-badge @(item.Status == "Hoàn thành" ? "status-active" : (item.Status == "Đã hủy" ? "status-inactive" : (item.Status == "Đang giao" ? "status-info" : "status-warning")))">
                                     @item.Status
                                 </span>
                             </td>

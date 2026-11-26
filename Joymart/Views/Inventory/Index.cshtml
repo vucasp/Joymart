@@ -1,0 +1,154 @@
+﻿@* =====================================================================
+   VIEW: Views/Inventory/Index.cshtml
+   MỤC ĐÍCH:
+     Trang Quản lý kho hàng cho Admin:
+       - Xem số lượng hàng còn lại thực tế trong kho (đồng bộ trực tiếp với cửa hàng).
+       - Chỉ giữ chức năng Nhập thêm hàng (+) vào kho (đã lược bỏ cột Lưu tồn).
+   ===================================================================== *@
+@model Joymart.Models.InventoryManagementViewModel
+
+@{
+    ViewBag.Title = "Quản lý kho hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="admin-kpi-grid">
+    <div class="admin-kpi-card">
+        <span class="admin-kpi-label">Tổng mặt hàng (SKU)</span>
+        <div class="admin-kpi-value">@Model.TotalSku</div>
+        <span class="admin-kpi-sub">Đang quản lý trong kho</span>
+    </div>
+
+    <div class="admin-kpi-card">
+        <span class="admin-kpi-label">Tổng số lượng trong kho</span>
+        <div class="admin-kpi-value" style="color: #0369a1;">@Model.TotalUnitsInStock</div>
+        <span class="admin-kpi-sub">Đồng bộ trực tiếp với cửa hàng</span>
+    </div>
+
+    <div class="admin-kpi-card">
+        <span class="admin-kpi-label">Sắp hết hàng (1 - 5)</span>
+        <div class="admin-kpi-value" style="color: #d97706;">@Model.LowStockCount</div>
+        <span class="admin-kpi-sub">Cần lên kế hoạch nhập thêm</span>
+    </div>
+
+    <div class="admin-kpi-card">
+        <span class="admin-kpi-label">Đã hết hàng (0)</span>
+        <div class="admin-kpi-value" style="color: #dc2626;">@Model.OutOfStockCount</div>
+        <span class="admin-kpi-sub">Tạm ngưng đặt mua trên web</span>
+    </div>
+</div>
+
+<div class="admin-panel">
+    <div class="admin-toolbar">
+        <div>
+            <h2 class="section-title">Theo dõi số lượng tồn kho</h2>
+            <small style="color: #64748b; display: block; margin-top: 4px;">
+                Số lượng hàng còn lại trong kho đồng bộ trực tiếp với số lượng sản phẩm đăng bán trên cửa hàng.
+            </small>
+        </div>
+        @Html.ActionLink("Quản lý thông tin sản phẩm", "Index", "Products", null, new { @class = "btn-soft" })
+    </div>
+
+    @if (TempData["InventorySuccess"] != null)
+    {
+        <div class="cart-message cart-message-success">@TempData["InventorySuccess"]</div>
+    }
+    @if (TempData["InventoryError"] != null)
+    {
+        <div class="cart-message cart-message-error">@TempData["InventoryError"]</div>
+    }
+
+    <div class="catalog-toolbar" style="background: #f8fafc; border-color: #e2e8f0; margin-bottom: 20px;">
+        @using (Html.BeginForm("Index", "Inventory", FormMethod.Get, new { @class = "catalog-search" }))
+        {
+            <input type="text" name="keyword" value="@Model.Keyword" placeholder="Tìm theo tên sản phẩm..." />
+
+            <select name="categoryId">
+                <option value="">Tất cả danh mục</option>
+                @foreach (var c in Model.Categories)
+                {
+                    <option value="@c.CategoryID" @(Model.CategoryId == c.CategoryID ? "selected" : "")>@c.CategoryName</option>
+                }
+            </select>
+
+            <select name="stockStatus">
+                <option value="" @(string.IsNullOrEmpty(Model.StockStatus) ? "selected" : "")>Tất cả mức tồn kho</option>
+                <option value="instock" @(Model.StockStatus == "instock" ? "selected" : "")>Còn nhiều (&gt; 5)</option>
+                <option value="low" @(Model.StockStatus == "low" ? "selected" : "")>Sắp hết hàng (1 - 5)</option>
+                <option value="out" @(Model.StockStatus == "out" ? "selected" : "")>Đã hết hàng (0)</option>
+            </select>
+
+            <button type="submit" class="btn-brand">Lọc kho</button>
+            <a class="btn-soft" href="@Url.Action("Index", "Inventory")">Đặt lại</a>
+        }
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Mã SP</th>
+                    <th>Sản phẩm</th>
+                    <th>Danh mục</th>
+                    <th>Trạng thái bán</th>
+                    <th>Số lượng còn trong kho</th>
+                    <th>Nhập thêm hàng (+)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Products)
+                {
+                    <tr>
+                        <td><strong>#@item.ProductID</strong></td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <img src="~/Content/images/@(string.IsNullOrEmpty(item.ImageUrl) ? "no-image.png" : item.ImageUrl)"
+                                     alt="@item.ProductName"
+                                     onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';"
+                                     style="width: 52px; height: 52px; object-fit: cover; border-radius: 10px; border: 1px solid #e2e8f0;" />
+                                <div>
+                                    <strong style="color: #0f172a;">@item.ProductName</strong>
+                                    <div style="font-size: 12.5px; color: #64748b;">Đơn giá: @item.Price.ToString("#,##0") đ</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="product-category-tag" style="margin: 0;">@item.Category.CategoryName</span></td>
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span class="status-badge status-active">Đang đăng bán</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-inactive">Ngừng bán</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.StockQuantity <= 0)
+                            {
+                                <span class="status-badge status-inactive">Hết hàng (0)</span>
+                            }
+                            else if (item.StockQuantity <= 5)
+                            {
+                                <span class="status-badge status-warning">Sắp hết (@item.StockQuantity)</span>
+                            }
+                            else
+                            {
+                                <strong style="font-size: 16px; color: #0f172a;">@item.StockQuantity</strong>
+                            }
+                        </td>
+                        <td>
+                            @using (Html.BeginForm("ImportStock", "Inventory", FormMethod.Post, new { @class = "inventory-inline-form" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="productId" value="@item.ProductID" />
+                                <input type="number" name="addQuantity" value="10" min="1" max="10000" />
+                                <button type="submit" class="btn-brand" style="padding: 6px 12px; font-size: 12.5px;">Nhập thêm</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

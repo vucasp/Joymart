@@ -1,0 +1,90 @@
+﻿@* =====================================================================
+   VIEW: Views/Orders/Delivering.cshtml
+   MỤC ĐÍCH:
+     Trang chỉ theo dõi các đơn hàng đang ở trạng thái "Đang giao":
+       - Admin chỉ có thể xem chi tiết đơn hàng (không thể tự xác nhận hoàn thành).
+       - Sau 7 ngày kể từ ngày xuất hàng nếu người nhận chưa xác nhận thì hệ thống
+         sẽ tự động chuyển trạng thái đơn sang "Hoàn thành".
+   ===================================================================== *@
+@model IEnumerable<Joymart.Models.OrderPro>
+@using System
+
+@{
+    ViewBag.Title = "Theo dõi đơn hàng đang giao";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="admin-panel">
+    <div class="admin-toolbar">
+        <div>
+            <h2 class="section-title">Các đơn hàng đang được giao (@Model.Count())</h2>
+            <small style="color: #64748b; display: block; margin-top: 4px;">
+                Nếu sau 7 ngày kể từ ngày xuất hàng mà chưa được xác nhận nhận hàng, hệ thống sẽ tự động cập nhật thành <strong>Hoàn thành</strong>.
+            </small>
+        </div>
+        @Html.ActionLink("← Xem tất cả đơn hàng", "Index", "Orders", null, new { @class = "btn-soft" })
+    </div>
+
+    @if (TempData["OrderSuccessMsg"] != null)
+    {
+        <div class="cart-message cart-message-success">@TempData["OrderSuccessMsg"]</div>
+    }
+    @if (TempData["OrderErrorMsg"] != null)
+    {
+        <div class="cart-message cart-message-error">@TempData["OrderErrorMsg"]</div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="catalog-empty">
+            <h3>Hiện không có đơn hàng nào đang giao</h3>
+            <p>Tất cả các đơn xuất kho đã hoàn tất giao hàng hoặc chưa có đơn mới xuất kho.</p>
+            @Html.ActionLink("Quay lại danh sách đơn hàng", "Index", "Orders", null, new { @class = "btn-brand" })
+        </div>
+    }
+    else
+    {
+        <div style="overflow-x: auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Người nhận &amp; SĐT</th>
+                        <th>Địa chỉ giao hàng</th>
+                        <th>Ngày xuất hàng</th>
+                        <th>Tự động hoàn thành</th>
+                        <th>Số tiền thanh toán</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        DateTime shipDate = item.ShippedDate ?? item.OrderDate;
+                        DateTime autoCompleteAt = shipDate.AddDays(7);
+                        int daysLeft = Math.Max(0, (int)Math.Ceiling((autoCompleteAt - DateTime.Now).TotalDays));
+
+                        <tr>
+                            <td><strong>#@item.OrderID</strong></td>
+                            <td>
+                                <strong>@(item.RecipientName ?? (item.Customer != null ? item.Customer.FullName : ""))</strong>
+                                <div style="font-size: 12.5px; color: #64748b;">@(item.ShippingPhone ?? (item.Customer != null ? item.Customer.Phone : ""))</div>
+                            </td>
+                            <td style="max-width: 260px;">@item.ShippingAddress</td>
+                            <td><strong>@shipDate.ToString("dd/MM/yyyy")</strong></td>
+                            <td>
+                                <span class="status-badge status-info">
+                                    @autoCompleteAt.ToString("dd/MM/yyyy") (còn @daysLeft ngày)
+                                </span>
+                            </td>
+                            <td><strong style="color: #e11d48;">@item.TotalAmount.ToString("#,##0") đ</strong></td>
+                            <td style="white-space: nowrap;">
+                                @Html.ActionLink("Chi tiết đơn", "Details", new { id = item.OrderID }, new { @class = "btn-soft", style = "padding: 6px 14px; font-size: 12.5px;" })
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,13 +1,12 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Error</title>
-</head>
-<body>
-    <hgroup>
-        <h1>Error.</h1>
-        <h2>An error occurred while processing your request.</h2>
-    </hgroup>
-</body>
-</html>
+﻿@{
+    ViewBag.Title = "Lỗi hệ thống";
+    Layout = "~/Views/Shared/_StoreLayout.cshtml";
+}
+
+<div class="auth-page">
+    <div class="auth-card" style="text-align: center; max-width: 520px;">
+        <h2>Đã xảy ra lỗi xử lý</h2>
+        <p class="auth-subtitle">Hệ thống gặp sự cố trong quá trình xử lý yêu cầu của bạn. Vui lòng thử lại sau.</p>
+        <a class="btn-brand" href="@Url.Action("Index", "Store")">Quay về trang chủ</a>
+    </div>
+</div>

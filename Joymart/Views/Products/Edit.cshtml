@@ -1,11 +1,17 @@
-﻿@model Joymart.Models.Product
+﻿@* =====================================================================
+   VIEW: Views/Products/Edit.cshtml
+   MỤC ĐÍCH:
+     Trang Chỉnh sửa sản phẩm cho Admin (sử dụng hàm previewProductImage
+     dùng chung từ Scripts/admin.js).
+   ===================================================================== *@
+@model Joymart.Models.Product
 
 @{
     ViewBag.Title = "Chỉnh sửa sản phẩm";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="shopee-container">
+<div class="shopee-container" style="margin-top: 0;">
     <nav class="shopee-breadcrumb">
         <a href="@Url.Action("Index", "Products")">Quản lý sản phẩm</a>
         <span>&gt;</span>
@@ -19,12 +25,14 @@
         @Html.HiddenFor(model => model.ImageUrl)
 
         <div class="shopee-product-box">
-            @* CỘT TRÁI: XEM TRƯỚC & ĐỔI ẢNH SẢN PHẨM *@
             <div class="shopee-gallery">
                 <div class="shopee-main-img">
                     @if (!string.IsNullOrEmpty(Model.ImageUrl))
                     {
-                        <img id="previewImg" src="~/Content/images/@Model.ImageUrl" alt="@Model.ProductName" onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
+                        <img id="previewImg"
+                             src="~/Content/images/@Model.ImageUrl"
+                             alt="@Model.ProductName"
+                             onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
                     }
                     else
                     {
@@ -41,17 +49,16 @@
                            name="ImageFile"
                            accept=".jpg,.jpeg,.png"
                            style="display: none;"
-                           onchange="previewProductImage(this)" />
+                           onchange="previewProductImage(this, 'previewImg')" />
                     <small style="display: block; margin-top: 6px; color: #64748b; text-align: center;">
                         Ảnh hiện tại: <strong>@(string.IsNullOrEmpty(Model.ImageUrl) ? "Chưa có" : Model.ImageUrl)</strong>
                     </small>
                 </div>
             </div>
 
-            @* CỘT PHẢI: THÔNG TIN CHỈNH SỬA *@
             <div class="shopee-info">
                 <div class="shopee-title-row" style="margin-bottom: 18px;">
-                    <h1>Chỉnh sửa sản phẩm</h1>
+                    <h1>Chỉnh sửa thông tin sản phẩm</h1>
                 </div>
 
                 @Html.ValidationSummary(true, "", new { @class = "cart-message cart-message-error" })
@@ -74,7 +81,7 @@
                     </div>
 
                     <div class="shopee-meta-row" style="align-items: center;">
-                        <div class="meta-label">Đơn giá (₫)</div>
+                        <div class="meta-label">Đơn giá (đ)</div>
                         <div class="meta-value">
                             @Html.TextBoxFor(m => m.Price, "{0:0}", new { @class = "form-control-modern", type = "number", min = "0", step = "1000" })
                             @Html.ValidationMessageFor(m => m.Price, "", new { @class = "text-danger" })
@@ -92,7 +99,7 @@
                     <div class="shopee-meta-row">
                         <div class="meta-label" style="padding-top: 8px;">Mô tả</div>
                         <div class="meta-value">
-                            @Html.TextAreaFor(m => m.Description, new { @class = "form-control-modern", rows = 3, placeholder = "Mô tả ngắn gọn về sản phẩm..." })
+                            @Html.TextAreaFor(m => m.Description, new { @class = "form-control-modern", rows = 3, placeholder = "Mô tả sản phẩm..." })
                             @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger" })
                         </div>
                     </div>
@@ -116,15 +123,3 @@
         </div>
     }
 </div>
-
-<script>
-    function previewProductImage(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                document.getElementById("previewImg").src = e.target.result;
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-</script>

@@ -35,6 +35,9 @@
     <EntitySetMapping Name="OrderProes">
       <EntityTypeMapping TypeName="JoymartModel.OrderPro">
         <MappingFragment StoreEntitySet="OrderPro">
+          <ScalarProperty Name="CompletedDate" ColumnName="CompletedDate" />
+          <ScalarProperty Name="ShippedDate" ColumnName="ShippedDate" />
+          <ScalarProperty Name="ShippingFee" ColumnName="ShippingFee" />
           <ScalarProperty Name="ShippingPhone" ColumnName="ShippingPhone" />
           <ScalarProperty Name="RecipientName" ColumnName="RecipientName" />
           <ScalarProperty Name="OrderID" ColumnName="OrderID" />
@@ -43,6 +46,18 @@
           <ScalarProperty Name="ShippingAddress" ColumnName="ShippingAddress" />
           <ScalarProperty Name="TotalAmount" ColumnName="TotalAmount" />
           <ScalarProperty Name="Status" ColumnName="Status" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="ProductReviews">
+      <EntityTypeMapping TypeName="JoymartModel.ProductReview">
+        <MappingFragment StoreEntitySet="ProductReview">
+          <ScalarProperty Name="ReviewID" ColumnName="ReviewID" />
+          <ScalarProperty Name="ProductID" ColumnName="ProductID" />
+          <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
+          <ScalarProperty Name="Rating" ColumnName="Rating" />
+          <ScalarProperty Name="Comment" ColumnName="Comment" />
+          <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>

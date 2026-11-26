@@ -133,7 +133,7 @@
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\CategoriesController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
-    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\InventoryController.cs" />
     <Compile Include="Controllers\MemberController.cs" />
     <Compile Include="Controllers\OrdersController.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
@@ -176,11 +176,15 @@
     <Compile Include="Models\OrderPro.cs">
       <DependentUpon>JoymartModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\OrderWorkflowHelper.cs" />
     <Compile Include="Models\PasswordHelper.cs" />
     <Compile Include="Models\Product.cs">
       <DependentUpon>JoymartModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\ProductCardViewModel.cs" />
+    <Compile Include="Models\ProductReview.cs">
+      <DependentUpon>JoymartModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Role.cs">
       <DependentUpon>JoymartModel.tt</DependentUpon>
     </Compile>
@@ -227,10 +231,15 @@
     <Content Include="Content\images\products\home-03.jpg" />
     <Content Include="Content\images\products\tech-01.jpg" />
     <Content Include="Content\images\products\tech-02.jpg" />
-    <Content Include="Content\joymart.css" />
+    <Content Include="Content\css\base.css" />
+    <Content Include="Content\css\store.css" />
+    <Content Include="Content\css\product-detail.css" />
+    <Content Include="Content\css\cart-checkout.css" />
+    <Content Include="Content\css\auth-member.css" />
+    <Content Include="Content\css\about.css" />
+    <Content Include="Content\css\admin.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
-    <Content Include="Content\Site.css" />
     <Content Include="Models\JoymartModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>JoymartModel.edmx</DependentUpon>
@@ -255,7 +264,9 @@
       <DependentUpon>JoymartModel.edmx</DependentUpon>
     </Content>
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
+    <Content Include="Scripts\admin.js" />
     <Content Include="Scripts\chiikawa-slider.js" />
+    <Content Include="Scripts\store-product.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
     <Content Include="Scripts\jquery-3.7.0.slim.js" />
@@ -276,12 +287,9 @@
     <Content Include="Views\Web.config" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
-    <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\_StoreLayout.cshtml" />
     <Content Include="Views\Shared\_AdminLayout.cshtml" />
+    <Content Include="Views\Inventory\Index.cshtml" />
     <Content Include="Views\Users\Index.cshtml" />
     <Content Include="Views\Users\Create.cshtml" />
     <Content Include="Views\Store\Index.cshtml" />
@@ -300,11 +308,14 @@
     <Content Include="Views\ShoppingCart\ShowCart.cshtml" />
     <Content Include="Views\ShoppingCart\Checkout.cshtml" />
     <Content Include="Views\ShoppingCart\OrderSuccess.cshtml" />
+    <Content Include="Views\ShoppingCart\TrackOrder.cshtml" />
     <Content Include="Views\Account\SignUp.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Admin\Index.cshtml" />
     <Content Include="Views\Orders\Index.cshtml" />
     <Content Include="Views\Orders\Details.cshtml" />
+    <Content Include="Views\Orders\Dispatch.cshtml" />
+    <Content Include="Views\Orders\Delivering.cshtml" />
     <Content Include="Views\Member\MyOrders.cshtml" />
     <Content Include="Views\Member\OrderDetails.cshtml" />
     <Content Include="Views\Member\Profile.cshtml" />

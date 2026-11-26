@@ -1,14 +1,45 @@
-﻿@model IEnumerable<Joymart.Models.OrderPro>
+﻿@* =====================================================================
+   VIEW: Views/Member/MyOrders.cshtml
+   MỤC ĐÍCH:
+     Giao diện Lịch sử Đơn mua dành riêng cho Khách hàng trên Storefront:
+       - Bộ lọc tab theo trạng thái đơn hàng.
+       - Danh sách thẻ đơn hàng rõ nét (không phụ thuộc admin.css).
+       - Cho phép Hủy đơn khi "Chờ xử lý" và Xác nhận "Đã nhận hàng" khi "Đang giao".
+   ===================================================================== *@
+@model IEnumerable<Joymart.Models.OrderPro>
+@using System.Linq
 
 @{
-    ViewBag.Title = "Đơn hàng của tôi";
+    ViewBag.Title = "Đơn mua của tôi";
     Layout = "~/Views/Shared/_StoreLayout.cshtml";
+    string selectedStatus = ViewBag.SelectedStatus as string;
+    string[] tabs = { "Chờ xử lý", "Đã xác nhận", "Đang giao", "Hoàn thành", "Đã hủy" };
 }
 
-<div class="admin-panel">
-    <div class="admin-toolbar">
-        <h2 class="section-title">Lịch sử đơn hàng của tôi</h2>
-        @Html.ActionLink("← Tiếp tục mua sắm", "Index", "Store", null, new { @class = "btn-soft" })
+<div class="member-orders-panel">
+    <div class="member-orders-toolbar">
+        <div>
+            <h2 class="section-title">Lịch sử đơn mua của tôi</h2>
+            <small style="color: var(--muted); display: block; margin-top: 4px;">
+                Theo dõi tình trạng xử lý, vận chuyển và lịch sử mua sắm của bạn tại Joymart.
+            </small>
+        </div>
+        @Html.ActionLink("Tiếp tục mua sắm", "Index", "Store", null, new { @class = "btn-soft" })
+    </div>
+
+    <!-- THANH TAB LỌC TRẠNG THÁI ĐƠN MUA -->
+    <div class="member-status-tabs">
+        <a class="member-status-tab @(string.IsNullOrEmpty(selectedStatus) ? "active" : "")"
+           href="@Url.Action("MyOrders", "Member")">
+            Tất cả
+        </a>
+        @foreach (var st in tabs)
+        {
+            <a class="member-status-tab @(selectedStatus == st ? "active" : "")"
+               href="@Url.Action("MyOrders", "Member", new { status = st })">
+                @st
+            </a>
+        }
     </div>
 
     @if (TempData["MemberSuccess"] != null)
@@ -22,58 +53,72 @@
 
     @if (!Model.Any())
     {
-        <div style="text-align: center; padding: 36px 16px;">
-            <p style="color: var(--muted); margin-bottom: 16px;">Bạn chưa có đơn hàng nào tại Joymart.</p>
+        <div class="catalog-empty">
+            <h3>Chưa có đơn hàng nào trong mục này</h3>
+            <p>Hãy quay lại cửa hàng để khám phá các sản phẩm yêu thích của bạn.</p>
             @Html.ActionLink("Khám phá sản phẩm ngay", "Index", "Store", null, new { @class = "btn-brand" })
         </div>
     }
     else
     {
-        <div style="overflow-x: auto;">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Mã đơn</th>
-                        <th>Ngày đặt</th>
-                        <th>Người nhận</th>
-                        <th>Địa chỉ giao hàng</th>
-                        <th>Tổng thanh toán</th>
-                        <th>Trạng thái</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td><strong>#@item.OrderID</strong></td>
-                            <td>@item.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td>@item.RecipientName</td>
-                            <td style="max-width: 240px;">@item.ShippingAddress</td>
-                            <td><strong style="color: #e11d48;">@item.TotalAmount.ToString("#,##0") đ</strong></td>
-                            <td>
-                                <span class="status-badge @(item.Status == "Hoàn thành" ? "status-active" : (item.Status == "Đã hủy" ? "status-inactive" : ""))"
-                                      style="@(item.Status != "Hoàn thành" && item.Status != "Đã hủy" ? "background:#fef3c7; color:#b45309;" : "")">
-                                    @item.Status
-                                </span>
-                            </td>
-                            <td style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                @Html.ActionLink("Chi tiết", "OrderDetails", new { id = item.OrderID }, new { @class = "btn-soft", style = "padding: 6px 12px; font-size: 13px;" })
+        <div class="member-order-list">
+            @foreach (var item in Model)
+            {
+                int totalItems = item.OrderDetails != null ? item.OrderDetails.Sum(d => d.Quantity) : 0;
 
-                                @if (item.Status == "Chờ xử lý")
+                <article class="member-order-card">
+                    <div class="member-order-head">
+                        <div>
+                            <strong style="font-size: 15.5px; color: var(--ink);">Đơn hàng #@item.OrderID</strong>
+                            <span style="color: var(--muted); font-size: 13px; margin-left: 10px;">
+                                Ngày đặt: @item.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                            </span>
+                        </div>
+                        <span class="status-badge @(item.Status == "Hoàn thành" ? "status-active" : (item.Status == "Đã hủy" ? "status-inactive" : (item.Status == "Đang giao" ? "status-info" : "status-warning")))">
+                            @item.Status
+                        </span>
+                    </div>
+
+                    <div class="member-order-body">
+                        <div class="member-order-meta">
+                            <p><strong>Người nhận:</strong> @item.RecipientName (@item.ShippingPhone)</p>
+                            <p><strong>Địa chỉ giao hàng:</strong> @item.ShippingAddress</p>
+                            <p><strong>Số lượng sản phẩm:</strong> @totalItems sản phẩm</p>
+                        </div>
+
+                        <div class="member-order-right">
+                            <div>
+                                <span style="font-size: 13px; color: var(--muted); margin-right: 6px;">Thành tiền:</span>
+                                <span class="member-order-total">@item.TotalAmount.ToString("#,##0") đ</span>
+                            </div>
+
+                            <div class="member-order-actions">
+                                @Html.ActionLink("Xem chi tiết", "OrderDetails", "Member", new { id = item.OrderID }, new { @class = "btn-soft", style = "padding: 7px 14px; font-size: 13px;" })
+
+                                @if (item.Status == "Đang giao")
                                 {
-                                    using (Html.BeginForm("CancelOrder", "Member", FormMethod.Post, new { style = "display:inline;", onsubmit = "return confirm('Bạn có chắc muốn hủy đơn hàng #" + item.OrderID + " không?');" }))
+                                    using (Html.BeginForm("ConfirmReceived", "Member", FormMethod.Post, new { style = "margin:0;", onsubmit = "return confirm('Xác nhận bạn đã nhận đầy đủ đơn hàng #" + item.OrderID + "?');" }))
                                     {
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="orderId" value="@item.OrderID" />
-                                        <button type="submit" class="nav-link-button" style="padding: 5px 12px; font-size: 13px;">Hủy đơn</button>
+                                        <button type="submit" class="btn-brand" style="padding: 7px 14px; font-size: 13px;">Đã nhận được hàng</button>
                                     }
                                 }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+
+                                @if (item.Status == "Chờ xử lý")
+                                {
+                                    using (Html.BeginForm("CancelOrder", "Member", FormMethod.Post, new { style = "margin:0;", onsubmit = "return confirm('Bạn có chắc muốn hủy đơn hàng #" + item.OrderID + " không?');" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="orderId" value="@item.OrderID" />
+                                        <button type="submit" class="nav-link-button" style="padding: 7px 14px; font-size: 13px;">Hủy đơn</button>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            }
         </div>
     }
 </div>

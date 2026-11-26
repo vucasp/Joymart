@@ -18,6 +18,7 @@ namespace Joymart.Models
         public Customer()
         {
             this.OrderProes = new HashSet<OrderPro>();
+            this.ProductReviews = new HashSet<ProductReview>();
         }
     
         public int CustomerID { get; set; }
@@ -30,5 +31,7 @@ namespace Joymart.Models
         public virtual UserAccount UserAccount { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<OrderPro> OrderProes { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ProductReview> ProductReviews { get; set; }
     }
 }

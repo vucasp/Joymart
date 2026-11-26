@@ -3,7 +3,7 @@
   "WorkspaceRootPath": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|c:\\users\\le tuan vu\\documents\\it\\huflit\\b\u00E0i t\u1EADp\\ltweb\\lt\\joymart\\joymart\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\joymart\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|solutionrelative:joymart\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -28,7 +28,7 @@
               "RelativeDocumentMoniker": "Joymart\\Controllers\\UsersController.cs",
               "ToolTip": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Controllers\\UsersController.cs",
               "RelativeToolTip": "Joymart\\Controllers\\UsersController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACcAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAADYAAAAAAAAAAAAowCcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-11-25T08:07:32.317Z",
               "EditorCaption": "",
@@ -45,7 +45,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2026-11-25T08:04:30.007Z",
-              "EditorCaption": "",
               "OwnerCaption": "%2"
             }
           ]

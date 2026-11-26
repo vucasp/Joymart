@@ -1,4 +1,11 @@
-﻿@* ===== LAYOUT RIÊNG CHO KHU VỰC QUẢN TRỊ VIÊN (ADMIN PORTAL) ===== *@
+﻿@* =====================================================================
+   LAYOUT QUẢN TRỊ VIÊN: Views/Shared/_AdminLayout.cshtml
+   MỤC ĐÍCH:
+     Giao diện Portal Quản trị riêng biệt hoàn toàn với trang mua sắm:
+       - Sidebar điều hướng cố định bên trái (gồm Tổng quan, Sản phẩm,
+         Kho hàng, Danh mục, Đơn hàng, Đơn đang giao, Tài khoản).
+       - Nạp các file CSS quản trị tách riêng và file Scripts/admin.js.
+   ===================================================================== *@
 @{
     string currentController = Convert.ToString(ViewContext.RouteData.Values["controller"]);
     string currentAction = Convert.ToString(ViewContext.RouteData.Values["action"]);
@@ -13,14 +20,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title - Quản trị Joymart</title>
     @Styles.Render("~/Content/css")
-    <link href="~/Content/joymart.css?v=8" rel="stylesheet" />
+    <link href="~/Content/css/base.css?v=1" rel="stylesheet" />
+    <link href="~/Content/css/store.css?v=1" rel="stylesheet" />
+    <link href="~/Content/css/product-detail.css?v=1" rel="stylesheet" />
+    <link href="~/Content/css/cart-checkout.css?v=1" rel="stylesheet" />
+    <link href="~/Content/css/auth-member.css?v=1" rel="stylesheet" />
+    <link href="~/Content/css/admin.css?v=1" rel="stylesheet" />
+    @RenderSection("styles", required: false)
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body class="admin-body">
     <div class="admin-sidebar-backdrop" id="adminBackdrop" onclick="toggleAdminSidebar()"></div>
 
     <div class="admin-shell">
-        <!-- SIDEBAR QUẢN TRỊ BÊN TRÁI -->
+        <!-- SIDEBAR QUẢN TRỊ BÊN TRÁI (KHÔNG SỬ DỤNG ICON) -->
         <aside class="admin-sidebar" id="adminSidebar">
             <div class="admin-sidebar-brand">
                 <a href="@Url.Action("Index", "Admin")">JOY<span>MART</span></a>
@@ -40,14 +53,24 @@
                     <span>Quản lý sản phẩm</span>
                 </a>
 
+                <a class="admin-menu-link @(currentController == "Inventory" ? "active" : "")"
+                   href="@Url.Action("Index", "Inventory")">
+                    <span>Quản lý kho hàng</span>
+                </a>
+
                 <a class="admin-menu-link @(currentController == "Categories" ? "active" : "")"
                    href="@Url.Action("Index", "Categories")">
                     <span>Quản lý danh mục</span>
                 </a>
 
-                <a class="admin-menu-link @(currentController == "Orders" ? "active" : "")"
+                <a class="admin-menu-link @(currentController == "Orders" && currentAction != "Delivering" ? "active" : "")"
                    href="@Url.Action("Index", "Orders")">
                     <span>Quản lý đơn hàng</span>
+                </a>
+
+                <a class="admin-menu-link @(currentController == "Orders" && currentAction == "Delivering" ? "active" : "")"
+                   href="@Url.Action("Delivering", "Orders")">
+                    <span>Đơn hàng đang giao</span>
                 </a>
 
                 <a class="admin-menu-link @(currentController == "Users" ? "active" : "")"
@@ -88,7 +111,7 @@
         <div class="admin-main">
             <header class="admin-topbar">
                 <div class="admin-topbar-left">
-                    <button type="button" class="btn-sidebar-toggle" onclick="toggleAdminSidebar()" style="font-size: 13px; font-weight: 700;">Menu</button>
+                    <button type="button" class="btn-sidebar-toggle" onclick="toggleAdminSidebar()">Menu</button>
                     <h1 class="admin-topbar-title">@(ViewBag.Title ?? "Quản trị hệ thống")</h1>
                 </div>
 
@@ -96,7 +119,6 @@
                     <a href="@Url.Action("Index", "Store")" class="btn-soft" style="padding: 7px 14px; font-size: 13px;">
                         Giao diện khách hàng
                     </a>
-                    <span class="role-badge-admin">Quyền: Admin</span>
                 </div>
             </header>
 
@@ -106,16 +128,7 @@
         </div>
     </div>
 
-    <script>
-        function toggleAdminSidebar() {
-            var sb = document.getElementById("adminSidebar");
-            var bd = document.getElementById("adminBackdrop");
-            if (sb && bd) {
-                sb.classList.toggle("open");
-                bd.classList.toggle("open");
-            }
-        }
-    </script>
+    <script src="~/Scripts/admin.js?v=1"></script>
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)

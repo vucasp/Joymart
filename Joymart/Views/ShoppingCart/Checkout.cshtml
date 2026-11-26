@@ -1,8 +1,17 @@
-﻿@model Joymart.Models.CheckoutViewModel
+﻿@* =====================================================================
+   VIEW: Views/ShoppingCart/Checkout.cshtml
+   MỤC ĐÍCH:
+     Trang thu thập thông tin người nhận, hiển thị chi tiết tạm tính,
+     phí vận chuyển tự động (Freeship >= 360.067đ) và tổng thanh toán.
+   ===================================================================== *@
+@model Joymart.Models.CheckoutViewModel
 
 @{
     ViewBag.Title = "Đặt hàng";
     Layout = "~/Views/Shared/_StoreLayout.cshtml";
+    decimal subTotal = Model.Cart.TotalMoney();
+    decimal shippingFee = Model.Cart.ShippingFee();
+    decimal grandTotal = Model.Cart.GrandTotal();
 }
 
 <div class="section-header" style="margin-top: 28px;">
@@ -29,7 +38,7 @@
             <div class="checkout-row">
                 <div class="checkout-label">@Html.LabelFor(m => m.Phone)</div>
                 <div class="checkout-input">
-                    @Html.TextBoxFor(m => m.Phone, new { @class = "form-control-modern", placeholder = "ví dụ: 0901234567", maxlength = "10" })
+                    @Html.TextBoxFor(m => m.Phone, new { @class = "form-control-modern", placeholder = "Ví dụ: 0901234567", maxlength = "10" })
                     @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
                 </div>
             </div>
@@ -37,7 +46,7 @@
             <div class="checkout-row">
                 <div class="checkout-label">@Html.LabelFor(m => m.Email)</div>
                 <div class="checkout-input">
-                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control-modern", placeholder = "ví dụ: example@gmail.com" })
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control-modern", placeholder = "Ví dụ: example@gmail.com" })
                     @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
                 </div>
             </div>
@@ -50,7 +59,7 @@
                 </div>
             </div>
 
-            <div class="checkout-row checkout-row-action">
+            <div class="checkout-row" style="margin-top: 10px;">
                 <div class="checkout-label"></div>
                 <div class="checkout-input" style="display: flex; gap: 10px; flex-wrap: wrap;">
                     <button type="submit" class="btn-brand">Xác nhận đặt hàng</button>
@@ -67,22 +76,39 @@
         {
             <div class="checkout-product">
                 <div class="checkout-product-image">
-                    <img src="~/Content/images/@(string.IsNullOrEmpty(item.ImageUrl) ? "no-image.png" : item.ImageUrl)" alt="@item.ProductName" onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
+                    <img src="~/Content/images/@(string.IsNullOrEmpty(item.ImageUrl) ? "no-image.png" : item.ImageUrl)"
+                         alt="@item.ProductName"
+                         onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
                 </div>
                 <div class="checkout-product-info">
                     <strong>@item.ProductName</strong>
-                    <div class="checkout-product-detail">Số lượng: <span>@item.Quantity</span></div>
-                    <div class="checkout-product-detail">Đơn giá: <span>@item.UnitPrice.ToString("#,##0") đ</span></div>
+                    <div class="checkout-product-detail">Số lượng: <strong>@item.Quantity</strong></div>
+                    <div class="checkout-product-detail">Đơn giá: <strong>@item.UnitPrice.ToString("#,##0") đ</strong></div>
                 </div>
-                <div class="checkout-product-total">
-                    @item.LineTotal.ToString("#,##0") đ
-                </div>
+                <div class="checkout-product-total">@item.LineTotal.ToString("#,##0") đ</div>
             </div>
         }
 
+        <div class="checkout-fee-line" style="margin-top: 16px;">
+            <span>Tạm tính tiền hàng:</span>
+            <strong>@subTotal.ToString("#,##0") đ</strong>
+        </div>
+
+        <div class="checkout-fee-line">
+            <span>Phí vận chuyển:</span>
+            @if (shippingFee == 0)
+            {
+                <strong style="color: #15803d;">Miễn phí (0 đ)</strong>
+            }
+            else
+            {
+                <strong>@shippingFee.ToString("#,##0") đ</strong>
+            }
+        </div>
+
         <div class="checkout-grand-total">
-            <span>Tổng cộng:</span>
-            <strong>@Model.Cart.TotalMoney().ToString("#,##0") đ</strong>
+            <span>Tổng thanh toán:</span>
+            <strong>@grandTotal.ToString("#,##0") đ</strong>
         </div>
     </aside>
 </div>

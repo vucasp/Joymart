@@ -1,0 +1,122 @@
+﻿@* =====================================================================
+   VIEW: Views/Orders/Dispatch.cshtml
+   MỤC ĐÍCH:
+     Trang Xuất hàng / Giao hàng khi Admin bấm "Xác nhận" ở danh sách đơn:
+       - Hiển thị thông tin khách hàng, địa chỉ giao, mặt hàng xuất kho.
+       - Hiển thị rõ tổng số tiền khách cần thanh toán.
+       - Cho phép lựa chọn Ngày xuất hàng (ShippedDate).
+       - Nút "Xác nhận xuất hàng / Giao hàng" -> chuyển trạng thái thành "Đang giao".
+       - Nút "Hoãn xuất hàng" -> chỉ cập nhật trạng thái thành "Đã xác nhận".
+   ===================================================================== *@
+@model Joymart.Models.OrderDispatchViewModel
+@using System.Linq
+
+@{
+    ViewBag.Title = "Xuất hàng / Giao hàng - Đơn #" + Model.Order.OrderID;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var order = Model.Order;
+}
+
+<div class="admin-panel">
+    <div class="admin-toolbar">
+        <div>
+            <h2 class="section-title">Phiếu Xuất hàng / Giao hàng — Đơn #@order.OrderID</h2>
+            <small style="color: #64748b; display: block; margin-top: 4px;">
+                Trạng thái hiện tại: <strong>@order.Status</strong> • Ngày đặt: @order.OrderDate.ToString("dd/MM/yyyy HH:mm")
+            </small>
+        </div>
+        @Html.ActionLink("← Quay lại quản lý đơn hàng", "Index", "Orders", null, new { @class = "btn-soft" })
+    </div>
+
+    <!-- KHỐI TỔNG TIỀN THANH TOÁN NỔI BẬT -->
+    <div class="dispatch-summary-banner">
+        <div>
+            <div style="font-size: 13px; font-weight: 700; color: #64748b; text-transform: uppercase;">Số tiền thanh toán của khách hàng</div>
+            <div style="font-size: 14px; color: #334155; margin-top: 4px;">
+                Tiền hàng: <strong>@Model.ItemsSubTotal.ToString("#,##0") đ</strong>
+                • Phí vận chuyển: <strong>@(order.ShippingFee == 0 ? "Miễn phí (0 đ)" : order.ShippingFee.ToString("#,##0") + " đ")</strong>
+            </div>
+        </div>
+        <div class="dispatch-amount-big">@order.TotalAmount.ToString("#,##0") đ</div>
+    </div>
+
+    <!-- THÔNG TIN KHÁCH HÀNG & LỰA CHỌN NGÀY XUẤT HÀNG -->
+    @using (Html.BeginForm("Dispatch", "Orders", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="orderId" value="@order.OrderID" />
+
+        <div class="order-info-grid">
+            <div class="order-info-card">
+                <h3>Thông tin khách hàng &amp; Nhận hàng</h3>
+                <p><strong>Họ tên người nhận:</strong> @(order.RecipientName ?? (order.Customer != null ? order.Customer.FullName : ""))</p>
+                <p><strong>Số điện thoại:</strong> @(order.ShippingPhone ?? (order.Customer != null ? order.Customer.Phone : ""))</p>
+                <p><strong>Email liên hệ:</strong> @(order.Customer != null ? order.Customer.Email : "Không có")</p>
+                <p><strong>Địa chỉ giao hàng:</strong> @order.ShippingAddress</p>
+                <p>
+                    <strong>Phân loại khách:</strong>
+                    @(order.Customer != null && order.Customer.UserID != null ? "Khách hàng thành viên" : "Khách vãng lai")
+                </p>
+            </div>
+
+            <div class="order-info-card">
+                <h3>Thông tin Xuất kho &amp; Điều phối giao hàng</h3>
+                <div class="auth-field" style="margin-top: 12px;">
+                    <label for="shippedDate">Lựa chọn ngày xuất hàng:</label>
+                    <input type="date"
+                           id="shippedDate"
+                           name="shippedDate"
+                           class="form-control-modern"
+                           value="@Model.SelectedShippedDate.ToString("yyyy-MM-dd")"
+                           required />
+                    <small style="display: block; margin-top: 6px; color: #64748b;">
+                        Lưu ý: Sau khi chuyển sang <strong>Đang giao</strong>, nếu sau 7 ngày kể từ ngày xuất hàng mà chưa xác nhận thủ công, hệ thống sẽ tự động xác nhận <strong>Hoàn thành</strong>.
+                    </small>
+                </div>
+
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px;">
+                    <button type="submit" name="submitAction" value="ship" class="btn-brand">
+                        Xác nhận xuất hàng / Giao hàng
+                    </button>
+
+                    <button type="submit" name="submitAction" value="defer" class="btn-soft">
+                        Hoãn xuất hàng (Chỉ xác nhận đơn)
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- DANH SÁCH SẢN PHẨM XUẤT KHO -->
+    <h3 style="margin: 8px 0 14px; font-size: 18px; font-weight: 800;">Chi tiết mặt hàng cần xuất kho (@order.OrderDetails.Sum(d => d.Quantity) sản phẩm)</h3>
+    <div class="cart-table-wrap">
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Đơn giá</th>
+                    <th>Số lượng xuất</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var detail in order.OrderDetails)
+                {
+                    <tr>
+                        <td>
+                            <div class="cart-product">
+                                <img src="~/Content/images/@(string.IsNullOrEmpty(detail.Product.ImageUrl) ? "no-image.png" : detail.Product.ImageUrl)"
+                                     alt="@detail.Product.ProductName"
+                                     onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
+                                <strong>@detail.Product.ProductName</strong>
+                            </div>
+                        </td>
+                        <td>@detail.UnitPrice.ToString("#,##0") đ</td>
+                        <td><strong>@detail.Quantity</strong></td>
+                        <td class="product-price">@((detail.UnitPrice * detail.Quantity).ToString("#,##0")) đ</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

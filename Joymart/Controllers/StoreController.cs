@@ -5,6 +5,12 @@ using System.Web.Mvc;
 
 namespace Joymart.Controllers
 {
+    // =====================================================================
+    // CONTROLLER TRANG CHỦ MUA SẮM & GIỚI THIỆU (StoreController)
+    // Nhiệm vụ:
+    //   - Hiển thị danh sách sản phẩm đang kinh doanh (mỗi trang 9 sản phẩm).
+    //   - Hỗ trợ lọc theo danh mục, từ khóa tên/mô tả, khoảng giá và sắp xếp.
+    // =====================================================================
     public class StoreController : Controller
     {
         private DBJoymartEntities db = new DBJoymartEntities();
@@ -18,23 +24,20 @@ namespace Joymart.Controllers
             string sortOrder,
             int page = 1)
         {
-            // Quy định mỗi trang hiển thị tối đa 6 sản phẩm
-            const int pageSize = 8;
+            // Quy định mỗi trang hiển thị tối đa 9 sản phẩm (lưới 3 cột x 3 hàng)
+            const int pageSize = 9;
             if (page < 1)
             {
                 page = 1;
             }
 
-            // 1. Bắt đầu từ các sản phẩm đang kinh doanh
             var products = db.Products.Where(p => p.IsActive);
 
-            // 2. Lọc theo danh mục (nếu có)
             if (categoryId.HasValue)
             {
                 products = products.Where(p => p.CategoryID == categoryId.Value);
             }
 
-            // 3. Tìm kiếm theo tên hoặc mô tả sản phẩm (nếu có)
             if (!string.IsNullOrWhiteSpace(keyword))
             {
                 keyword = keyword.Trim();
@@ -42,7 +45,6 @@ namespace Joymart.Controllers
                                             || p.Description.Contains(keyword));
             }
 
-            // 4. Lọc theo khoảng giá từ - đến (nếu có)
             if (minPrice.HasValue)
             {
                 products = products.Where(p => p.Price >= minPrice.Value);
@@ -52,7 +54,6 @@ namespace Joymart.Controllers
                 products = products.Where(p => p.Price <= maxPrice.Value);
             }
 
-            // 5. Đếm tổng số sản phẩm thỏa điều kiện & tính số trang
             int totalItems = products.Count();
             int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
             if (totalPages == 0)
@@ -64,7 +65,6 @@ namespace Joymart.Controllers
                 page = totalPages;
             }
 
-            // 6. Sắp xếp trước khi Skip/Take
             switch (sortOrder)
             {
                 case "price_asc":
@@ -78,7 +78,6 @@ namespace Joymart.Controllers
                     break;
             }
 
-            // 7. Đóng gói dữ liệu vào StoreHomeViewModel
             var model = new StoreHomeViewModel
             {
                 Categories = db.Categories
@@ -113,10 +112,19 @@ namespace Joymart.Controllers
             return View(model);
         }
 
-        // GET: /Store/AboutStore                  
+        // GET: /Store/AboutStore
         public ActionResult AboutStore()
         {
             return View();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

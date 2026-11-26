@@ -1,29 +1,60 @@
-﻿@{
+﻿@* =====================================================================
+   VIEW: Views/Store/AboutStore.cshtml
+   MỤC ĐÍCH:
+     Trang Giới thiệu của Joymart:
+       - Hero giới thiệu thương hiệu & các chỉ số vận hành nổi bật
+       - Đội ngũ phát triển (bỏ MSSV theo yêu cầu) & Bảng phân công công việc
+   ===================================================================== *@
+@{
     ViewBag.Title = "Giới thiệu";
     Layout = "~/Views/Shared/_StoreLayout.cshtml";
 }
 
-<!-- ===== PHẦN 1: THÔNG TIN TRANG WEB JOYMART ===== -->
-<section class="about-card">
-    <span class="product-category-tag">VỀ TRANG WEB</span>
-    <h2>Joymart — Website mua sắm trực tuyến hiện đại</h2>
-    <p>
-        <strong>Joymart</strong> là website thương mại điện tử được tạo ra để cung cấp các sản phẩm lấy ý tưởng từ bộ phim hoạt hình Chiikawa đến cho người dùng.
-    </p>
-    <p>
-        Hệ thống cung cấp đa dạng danh mục sản phẩm từ thiết bị công nghệ, thời trang phong cách đến đồ gia dụng và phụ kiện tiện ích với thông tin minh bạch, giá cả rõ ràng và giao diện tương thích trên cả máy tính lẫn điện thoại (Chắc vậy).
-    </p>
+<!-- PHẦN 1: HERO GIỚI THIỆU DỰ ÁN JOYMART -->
+<section class="about-hero">
+    <div>
+        <span class="product-category-tag" style="margin-bottom: 6px;">CÂU CHUYỆN THƯƠNG HIỆU</span>
+        <h1>Không gian mua sắm chủ đề <span>Chiikawa</span> hiện đại &amp; minh bạch</h1>
+        <p>
+            <strong>Joymart</strong> là hệ thống thương mại điện tử trực tuyến được xây dựng nhằm mang các dòng sản phẩm lấy cảm hứng từ bộ nhân vật hoạt hình Chiikawa đến gần hơn với người yêu thích sưu tầm.
+        </p>
+        <p>
+            Từ thiết bị công nghệ, trang phục thường ngày cho đến đồ gia dụng và phụ kiện tiện ích, toàn bộ dữ liệu sản phẩm, tồn kho, chính sách vận chuyển và tiến trình giao nhận đều được đồng bộ tự động theo thời gian thực.
+        </p>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px;">
+            <a class="btn-brand" href="@Url.Action("Index", "Store")">Khám phá cửa hàng</a>
+            <a class="btn-soft" href="@Url.Action("TrackOrder", "ShoppingCart")">Tra cứu đơn hàng</a>
+        </div>
+    </div>
+
+    <div class="about-highlights">
+        <div class="about-highlight-box">
+            <strong>4 Nhóm</strong>
+            <span>Ngành hàng chuyên biệt chủ đề Chiikawa</span>
+        </div>
+        <div class="about-highlight-box">
+            <strong>360.067đ</strong>
+            <span>Mốc đơn hàng hưởng Miễn phí vận chuyển</span>
+        </div>
+        <div class="about-highlight-box">
+            <strong>100%</strong>
+            <span>Đồng bộ tức thời giữa Kho hàng &amp; Cửa hàng</span>
+        </div>
+        <div class="about-highlight-box">
+            <strong>PBKDF2</strong>
+            <span>Mã hóa mật khẩu 100.000 vòng lặp an toàn</span>
+        </div>
+    </div>
 </section>
 
-<!-- ===== PHẦN 2: THÔNG TIN LIÊN HỆ 3 THÀNH VIÊN ===== -->
+<!-- PHẦN 2: ĐỘI NGŨ PHÁT TRIỂN DỰ ÁN -->
 <section class="about-section-block">
     <div class="section-header">
         <h2 class="section-title">Đội ngũ phát triển</h2>
-        <span style="color: var(--muted); font-size: 14px;">Thành viên thực hiện dự án</span>
+        <span style="color: var(--muted); font-size: 14px; font-weight: 600;">Nhóm sinh viên thực hiện đồ án học phần Lập Trình Web</span>
     </div>
 
     <div class="team-grid">
-        <!-- Thành viên 1 -->
         <article class="team-card">
             <div class="team-avatar">
                 <img src="~/Content/images/avt/member-01.jpg" alt="Huỳnh Trọng Nghĩa" />
@@ -36,26 +67,24 @@
             </ul>
         </article>
 
-        <!-- Thành viên 2 -->
         <article class="team-card">
             <div class="team-avatar">
                 <img src="~/Content/images/avt/member-02.jpg" alt="Võ Trần Nguyên Vũ" />
             </div>
             <h3 class="team-name">Võ Trần Nguyên Vũ</h3>
-            <span class="team-role-badge"></span>
+            <span class="team-role-badge">Thành viên phát triển</span>
             <ul class="team-contact">
                 <li><strong>Email:</strong> 25DH110630@st.huflit.edu.vn</li>
                 <li><strong>Điện thoại:</strong> 0948 910 164</li>
             </ul>
         </article>
 
-        <!-- Thành viên 3 -->
         <article class="team-card">
             <div class="team-avatar">
                 <img src="~/Content/images/avt/member-03.jpg" alt="Lê Tuấn Vũ" />
             </div>
             <h3 class="team-name">Lê Tuấn Vũ</h3>
-            <span class="team-role-badge"></span>
+            <span class="team-role-badge">Thành viên phát triển</span>
             <ul class="team-contact">
                 <li><strong>Email:</strong> 25DH110628@st.huflit.edu.vn</li>
                 <li><strong>Điện thoại:</strong> 0934 154 153</li>
@@ -64,19 +93,19 @@
     </div>
 </section>
 
-<!-- ===== PHẦN 3: PHÂN CÔNG CÔNG VIỆC TRONG BÀI LÀM WEB ===== -->
+<!-- PHẦN 3: BẢNG PHÂN CÔNG NHIỆM VỤ -->
 <section class="about-section-block">
     <div class="section-header">
         <h2 class="section-title">Phân công công việc</h2>
-        <span style="color: var(--muted); font-size: 14px;">Chi tiết nhiệm vụ từng thành viên</span>
+        <span style="color: var(--muted); font-size: 14px; font-weight: 600;">Chi tiết hạng mục phụ trách của từng thành viên</span>
     </div>
 
     <div class="task-panel">
         <table class="task-table">
             <thead>
                 <tr>
-                    <th style="width: 22%;">Thành viên</th>
-                    <th style="width: 44%;">Nội dung công việc đảm nhận</th>
+                    <th style="width: 26%;">Thành viên</th>
+                    <th>Nội dung công việc đảm nhận</th>
                 </tr>
             </thead>
             <tbody>
@@ -84,9 +113,9 @@
                     <td><strong>Huỳnh Trọng Nghĩa</strong></td>
                     <td>
                         <ul class="task-list-items">
-                            <li>Thiết kế kiến trúc tổng thể hệ thống, CSDL DBJoymart, Entity Framework</li>
-                            <li>Bảo mật mật khẩu</li>
-                            <li>Kiểm thử và hoàn thiện báo cáo</li>
+                            <li>Thiết kế kiến trúc tổng thể hệ thống, CSDL DBJoymart và mô hình Entity Framework 6</li>
+                            <li>Xây dựng cơ chế bảo mật mật khẩu chuẩn PBKDF2 + Salt và bộ lọc phân quyền</li>
+                            <li>Kiểm thử tích hợp toàn hệ thống và biên soạn báo cáo tổng kết</li>
                         </ul>
                     </td>
                 </tr>
@@ -94,10 +123,9 @@
                     <td><strong>Võ Trần Nguyên Vũ</strong></td>
                     <td>
                         <ul class="task-list-items">
-                            <li>Chức năng trang chủ StoreController</li>
-                            <li>Quản lý sản phẩm</li>
-                            <li>Quản lý danh mục</li>
-                            <li>Hệ thống giỏ hàng</li>
+                            <li>Phát triển trang chủ mua sắm, bộ lọc tìm kiếm, khoảng giá, sắp xếp và phân trang</li>
+                            <li>Quản lý sản phẩm (nhận diện trùng ảnh SHA-256), quản lý danh mục và quản lý kho hàng đồng bộ</li>
+                            <li>Xây dựng hệ thống giỏ hàng Session, chính sách Freeship, tra cứu đơn và đánh giá sản phẩm</li>
                         </ul>
                     </td>
                 </tr>
@@ -105,17 +133,13 @@
                     <td><strong>Lê Tuấn Vũ</strong></td>
                     <td>
                         <ul class="task-list-items">
-                            <li>Thiết kế giao diện CSS, JS, giao diện layout dùng chung</li>
-                            <li>Phân hệ tài khoản khách hàng & admin</li>
-                            <li>Quản lý đơn hàng</li>
+                            <li>Tổ chức kiến trúc CSS/JS phân tách theo từng phân hệ, thiết kế Layout Khách hàng và Portal Quản trị riêng</li>
+                            <li>Phát triển phân hệ tài khoản thành viên, hồ sơ cá nhân và quản lý phân quyền Admin</li>
+                            <li>Xây dựng quy trình điều phối đơn hàng: Xác nhận, Xuất hàng/Giao hàng, Theo dõi đang giao &amp; tự động hoàn tất sau 7 ngày</li>
                         </ul>
                     </td>
                 </tr>
             </tbody>
         </table>
-    </div>
-
-    <div style="margin-top: 28px;">
-        <a class="btn-brand" href="@Url.Action("Index", "Store")">← Quay lại trang mua sắm Joymart</a>
     </div>
 </section>

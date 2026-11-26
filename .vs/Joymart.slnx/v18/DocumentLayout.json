@@ -3,7 +3,27 @@
   "WorkspaceRootPath": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|c:\\users\\le tuan vu\\documents\\it\\huflit\\b\u00E0i t\u1EADp\\ltweb\\lt\\joymart\\joymart\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|c:\\users\\le tuan vu\\documents\\it\\huflit\\b\u00E0i t\u1EADp\\ltweb\\lt\\joymart\\joymart\\views\\account\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|solutionrelative:joymart\\views\\account\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|c:\\users\\le tuan vu\\documents\\it\\huflit\\b\u00E0i t\u1EADp\\ltweb\\lt\\joymart\\joymart\\views\\users\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|solutionrelative:joymart\\views\\users\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|c:\\users\\le tuan vu\\documents\\it\\huflit\\b\u00E0i t\u1EADp\\ltweb\\lt\\joymart\\joymart\\scripts\\chiikawa-slider.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|solutionrelative:joymart\\scripts\\chiikawa-slider.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|c:\\users\\le tuan vu\\documents\\it\\huflit\\b\u00E0i t\u1EADp\\ltweb\\lt\\joymart\\joymart\\scripts\\store-product.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|solutionrelative:joymart\\scripts\\store-product.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|c:\\users\\le tuan vu\\documents\\it\\huflit\\b\u00E0i t\u1EADp\\ltweb\\lt\\joymart\\joymart\\scripts\\admin.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|solutionrelative:joymart\\scripts\\admin.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\joymart\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{00F06E05-4061-4905-9519-CE9E40B28A11}|Joymart\\Joymart.csproj|solutionrelative:joymart\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -23,12 +43,82 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "Login.cshtml",
+              "DocumentMoniker": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Views\\Account\\Login.cshtml",
+              "RelativeDocumentMoniker": "Joymart\\Views\\Account\\Login.cshtml",
+              "ToolTip": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Views\\Account\\Login.cshtml",
+              "RelativeToolTip": "Joymart\\Views\\Account\\Login.cshtml",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-11-26T05:12:46.349Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Create.cshtml",
+              "DocumentMoniker": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Views\\Users\\Create.cshtml",
+              "RelativeDocumentMoniker": "Joymart\\Views\\Users\\Create.cshtml",
+              "ToolTip": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Views\\Users\\Create.cshtml",
+              "RelativeToolTip": "Joymart\\Views\\Users\\Create.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-11-26T05:12:30.027Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "chiikawa-slider.js",
+              "DocumentMoniker": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Scripts\\chiikawa-slider.js",
+              "RelativeDocumentMoniker": "Joymart\\Scripts\\chiikawa-slider.js",
+              "ToolTip": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Scripts\\chiikawa-slider.js",
+              "RelativeToolTip": "Joymart\\Scripts\\chiikawa-slider.js",
+              "ViewState": "AgIAAEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-11-26T05:11:16.1Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "store-product.js",
+              "DocumentMoniker": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Scripts\\store-product.js",
+              "RelativeDocumentMoniker": "Joymart\\Scripts\\store-product.js",
+              "ToolTip": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Scripts\\store-product.js",
+              "RelativeToolTip": "Joymart\\Scripts\\store-product.js",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-11-26T05:11:02.632Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "admin.js",
+              "DocumentMoniker": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Scripts\\admin.js",
+              "RelativeDocumentMoniker": "Joymart\\Scripts\\admin.js",
+              "ToolTip": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Scripts\\admin.js",
+              "RelativeToolTip": "Joymart\\Scripts\\admin.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-11-26T05:10:55.35Z",
+              "EditorCaption": "",
+              "OwnerCaption": "%2"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "UsersController.cs",
               "DocumentMoniker": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Controllers\\UsersController.cs",
               "RelativeDocumentMoniker": "Joymart\\Controllers\\UsersController.cs",
               "ToolTip": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Controllers\\UsersController.cs",
               "RelativeToolTip": "Joymart\\Controllers\\UsersController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACcAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABUAAAAAAAAAAAAowCcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-11-25T08:07:32.317Z",
               "EditorCaption": "",
@@ -36,7 +126,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 6,
               "Title": "_AdminLayout.cshtml",
               "DocumentMoniker": "C:\\Users\\Le Tuan Vu\\Documents\\IT\\Huflit\\B\u00E0i T\u1EADp\\LTWEB\\LT\\Joymart\\Joymart\\Views\\Shared\\_AdminLayout.cshtml",
               "RelativeDocumentMoniker": "Joymart\\Views\\Shared\\_AdminLayout.cshtml",
@@ -45,7 +135,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2026-11-25T08:04:30.007Z",
-              "EditorCaption": "",
               "OwnerCaption": "%2"
             }
           ]

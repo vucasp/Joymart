@@ -1,24 +1,52 @@
-﻿@model Joymart.Models.OrderPro
+﻿@* =====================================================================
+   VIEW: Views/Member/OrderDetails.cshtml
+   MỤC ĐÍCH:
+     Trang Chi tiết đơn mua của khách hàng thành viên:
+       - Thanh tiến trình 4 bước giao hàng trực quan
+       - Nút "Đã nhận được hàng" khi đơn Đang giao hoặc "Hủy đơn hàng" khi Chờ xử lý
+       - Bảng sản phẩm đặt mua kèm nút Đánh giá sản phẩm nếu đơn đã Hoàn thành
+   ===================================================================== *@
+@model Joymart.Models.OrderPro
 @using System.Linq
 
 @{
-    ViewBag.Title = "Chi tiết đơn hàng #" + Model.OrderID;
+    ViewBag.Title = "Chi tiết đơn mua #" + Model.OrderID;
     Layout = "~/Views/Shared/_StoreLayout.cshtml";
+    decimal subTotal = Model.OrderDetails.Sum(d => d.Quantity * d.UnitPrice);
+    string[] steps = { "Chờ xử lý", "Đã xác nhận", "Đang giao", "Hoàn thành" };
+    int currentIdx = System.Array.IndexOf(steps, Model.Status);
 }
 
-<div class="order-success">
-    <div class="admin-toolbar">
-        <h2 class="section-title">Chi tiết đơn hàng #@Model.OrderID</h2>
-        <div style="display: flex; gap: 10px;">
+<div class="member-orders-panel">
+    <div class="member-orders-toolbar">
+        <div>
+            <h2 class="section-title">Chi tiết đơn mua #@Model.OrderID</h2>
+            <small style="color: var(--muted); display: block; margin-top: 4px;">
+                Ngày đặt hàng: @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")
+            </small>
+        </div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            @if (Model.Status == "Đang giao")
+            {
+                using (Html.BeginForm("ConfirmReceived", "Member", FormMethod.Post, new { style = "margin:0;", onsubmit = "return confirm('Xác nhận bạn đã nhận được đơn hàng #" + Model.OrderID + "?');" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="orderId" value="@Model.OrderID" />
+                    <button type="submit" class="btn-brand">Đã nhận được hàng</button>
+                }
+            }
+
             @if (Model.Status == "Chờ xử lý")
             {
-                using (Html.BeginForm("CancelOrder", "Member", FormMethod.Post, new { style = "display:inline;", onsubmit = "return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?');" }))
+                using (Html.BeginForm("CancelOrder", "Member", FormMethod.Post, new { style = "margin:0;", onsubmit = "return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?');" }))
                 {
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="orderId" value="@Model.OrderID" />
                     <button type="submit" class="nav-link-button" style="padding: 9px 16px;">Hủy đơn hàng</button>
                 }
             }
+
             @Html.ActionLink("← Quay lại đơn mua", "MyOrders", "Member", null, new { @class = "btn-soft" })
         </div>
     </div>
@@ -32,13 +60,26 @@
         <div class="cart-message cart-message-error">@TempData["MemberError"]</div>
     }
 
+    @if (Model.Status != "Đã hủy")
+    {
+        <div class="order-steps-bar">
+            @for (int i = 0; i < steps.Length; i++)
+            {
+                string stateClass = i < currentIdx ? "done" : (i == currentIdx ? "current" : "");
+                <div class="order-step-item @stateClass">
+                    Bước @(i + 1): @steps[i]
+                </div>
+            }
+        </div>
+    }
+
     <div class="order-info-grid">
         <div class="order-info-card">
-            <h3>Thông tin đơn hàng</h3>
-            <p><strong>Mã đơn:</strong> #@Model.OrderID</p>
-            <p><strong>Ngày đặt:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+            <h3>Thông tin thanh toán &amp; Vận chuyển</h3>
             <p><strong>Trạng thái:</strong> <span class="product-category-tag" style="margin:0;">@Model.Status</span></p>
-            <p><strong>Tổng số lượng:</strong> @Model.OrderDetails.Sum(d => d.Quantity) sản phẩm</p>
+            <p><strong>Ngày xuất kho:</strong> @(Model.ShippedDate.HasValue ? Model.ShippedDate.Value.ToString("dd/MM/yyyy") : "Đang chuẩn bị")</p>
+            <p><strong>Tiền hàng tạm tính:</strong> @subTotal.ToString("#,##0") đ</p>
+            <p><strong>Phí vận chuyển:</strong> @(Model.ShippingFee == 0 ? "Miễn phí (0 đ)" : Model.ShippingFee.ToString("#,##0") + " đ")</p>
             <p><strong>Tổng thanh toán:</strong> <span class="product-price">@Model.TotalAmount.ToString("#,##0") đ</span></p>
         </div>
 
@@ -51,7 +92,7 @@
         </div>
     </div>
 
-    <h3 style="margin-bottom: 14px; font-weight: 800;">Sản phẩm trong đơn</h3>
+    <h3 style="margin-bottom: 14px; font-weight: 800; font-size: 18px;">Sản phẩm trong đơn (@Model.OrderDetails.Sum(d => d.Quantity) sản phẩm)</h3>
     <div class="cart-table-wrap">
         <table class="cart-table">
             <thead>
@@ -60,6 +101,10 @@
                     <th>Đơn giá</th>
                     <th>Số lượng</th>
                     <th>Thành tiền</th>
+                    @if (Model.Status == "Hoàn thành")
+                    {
+                        <th style="width: 150px;">Đánh giá</th>
+                    }
                 </tr>
             </thead>
             <tbody>
@@ -68,13 +113,23 @@
                     <tr>
                         <td>
                             <div class="cart-product">
-                                <img src="~/Content/images/@(string.IsNullOrEmpty(detail.Product.ImageUrl) ? "no-image.png" : detail.Product.ImageUrl)" alt="@detail.Product.ProductName" onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
-                                <strong>@detail.Product.ProductName</strong>
+                                <img src="~/Content/images/@(string.IsNullOrEmpty(detail.Product.ImageUrl) ? "no-image.png" : detail.Product.ImageUrl)"
+                                     alt="@detail.Product.ProductName"
+                                     onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
+                                <a href="@Url.Action("Details", "Products", new { id = detail.ProductID })" style="color: var(--ink); text-decoration: none; font-weight: 700;">
+                                    @detail.Product.ProductName
+                                </a>
                             </div>
                         </td>
                         <td>@detail.UnitPrice.ToString("#,##0") đ</td>
                         <td><strong>@detail.Quantity</strong></td>
                         <td class="product-price">@((detail.UnitPrice * detail.Quantity).ToString("#,##0")) đ</td>
+                        @if (Model.Status == "Hoàn thành")
+                        {
+                            <td>
+                                @Html.ActionLink("Viết đánh giá", "Details", "Products", new { id = detail.ProductID }, new { @class = "btn-soft", style = "padding: 6px 12px; font-size: 12.5px;" })
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>

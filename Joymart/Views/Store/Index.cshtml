@@ -1,4 +1,12 @@
-﻿@model Joymart.Models.StoreHomeViewModel
+﻿@* =====================================================================
+   VIEW: Views/Store/Index.cshtml
+   MỤC ĐÍCH:
+     Trang chủ cửa hàng Joymart:
+       - Slideshow Banner Chiikawa
+       - Thanh tìm kiếm từ khóa, lọc khoảng giá & sắp xếp
+       - Sidebar danh mục + Lưới sản phẩm có gắn nhãn tồn kho trực quan (Text Badge)
+   ===================================================================== *@
+@model Joymart.Models.StoreHomeViewModel
 
 @{
     ViewBag.Title = "Trang chủ";
@@ -18,10 +26,8 @@
     </div>
 }
 
-<!-- Slideshow container -->
+<!-- SLIDESHOW BANNER -->
 <div class="slideshow-container">
-
-    <!-- Full-width images with number and caption text -->
     <div class="mySlides fade">
         <div class="numbertext">1 / 3</div>
         <img src="~/Content/images/banner/chiikawa-banner-1.jpg" alt="Chiikawa Collection" />
@@ -40,24 +46,21 @@
         <div class="text">ĐA DẠNG MẪU MÃ ĐỂ NGƯỜI DÙNG TỰ DO LỰA CHỌN</div>
     </div>
 
-    <!-- Next and previous buttons -->
-    <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
-    <a class="next" onclick="plusSlides(1)">&#10095;</a>
+    <a class="prev" onclick="plusSlides(-1)">&lt;</a>
+    <a class="next" onclick="plusSlides(1)">&gt;</a>
 </div>
-<br>
+<br />
 
-<!-- The dots/circles -->
 <div style="text-align:center">
     <span class="dot" onclick="currentSlide(1)"></span>
     <span class="dot" onclick="currentSlide(2)"></span>
     <span class="dot" onclick="currentSlide(3)"></span>
 </div>
 
-<!-- ===== THANH TÌM KIẾM, LỌC GIÁ & SẮP XẾP ===== -->
-<div class="catalog-toolbar" id="featured-products">
+<!-- THANH TÌM KIẾM, LỌC GIÁ & SẮP XẾP -->
+<div class="catalog-toolbar" id="featured-products" style="margin-top: 18px;">
     @using (Html.BeginForm("Index", "Store", FormMethod.Get, new { @class = "catalog-search" }))
     {
-        @* Giữ lại danh mục đang lọc nếu người dùng đang chọn danh mục *@
         if (Model.SelectedCategoryId.HasValue)
         {
             <input type="hidden" name="categoryId" value="@Model.SelectedCategoryId" />
@@ -84,8 +87,8 @@
 
         <select name="sortOrder">
             <option value="" @(string.IsNullOrEmpty(Model.SortOrder) ? "selected" : "")>Sắp xếp: Mới nhất</option>
-            <option value="price_asc" @(Model.SortOrder == "price_asc" ? "selected" : "")>Giá thấp → cao</option>
-            <option value="price_desc" @(Model.SortOrder == "price_desc" ? "selected" : "")>Giá cao → thấp</option>
+            <option value="price_asc" @(Model.SortOrder == "price_asc" ? "selected" : "")>Giá thấp đến cao</option>
+            <option value="price_desc" @(Model.SortOrder == "price_desc" ? "selected" : "")>Giá cao đến thấp</option>
         </select>
 
         <button type="submit" class="btn-brand">Tìm kiếm</button>
@@ -93,18 +96,17 @@
     }
 </div>
 
-<!-- ===== TIÊU ĐỀ & THỐNG KÊ SỐ KẾT QUẢ (BÀI TẬP 1) ===== -->
 <div class="section-header">
-    <h2 class="section-title">Tất cả sản phẩm</h2>
+    <h2 class="section-title">Danh mục sản phẩm</h2>
     <span style="color: var(--muted); font-size: 14.5px; font-weight: 600;">
         Tìm thấy <strong style="color: var(--brand-dark);">@Model.TotalItems</strong> sản phẩm
     </span>
 </div>
 
-<!-- ===== KHUNG CHÍNH: DANH MỤC ĐỘNG TRÁI + LƯỚI SẢN PHẨM PHẢI ===== -->
+<!-- KHUNG CHÍNH: DANH MỤC ĐỘNG TRÁI + LƯỚI SẢN PHẨM PHẢI -->
 <div class="store-shell">
     <aside class="category-panel">
-        <h3>Danh mục sản phẩm</h3>
+        <h3>Nhóm ngành hàng</h3>
         <ul class="category-list">
             <li>
                 <a class="@(Model.SelectedCategoryId == null ? "active" : "")"
@@ -143,14 +145,31 @@
                 {
                     <article class="product-card">
                         <div class="product-image">
-                            <img src="~/Content/images/@(string.IsNullOrEmpty(item.ImagePro) ? "no-image.png" : item.ImagePro)" alt="@item.NamePro" onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
+                            <img src="~/Content/images/@(string.IsNullOrEmpty(item.ImagePro) ? "no-image.png" : item.ImagePro)"
+                                 alt="@item.NamePro"
+                                 onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
                         </div>
 
                         <div class="product-body">
                             <span class="product-category-tag">@item.CategoryName</span>
                             <div class="product-name">@item.NamePro</div>
                             <div class="product-description">@item.ShortDescription</div>
-                            <div class="product-price">@item.Price.ToString("#,##0") đ</div>
+
+                            <div class="product-price-row">
+                                <div class="product-price">@item.Price.ToString("#,##0") đ</div>
+                                @if (item.StockQuantity <= 0)
+                                {
+                                    <span class="status-badge status-inactive">Hết hàng</span>
+                                }
+                                else if (item.StockQuantity <= 5)
+                                {
+                                    <span class="status-badge status-warning">Sắp hết</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-active">Còn hàng</span>
+                                }
+                            </div>
 
                             <div class="product-actions">
                                 @Html.ActionLink("Chi tiết", "Details", "Products", new { id = item.ProductID }, new { @class = "btn-soft" })
@@ -178,7 +197,6 @@
             </div>
         }
 
-        @* ===== THANH PHÂN TRANG ===== *@
         @if (Model.TotalPages > 1)
         {
             <div class="store-pagination">
@@ -191,7 +209,7 @@
                         maxPrice = Model.MaxPrice,
                         sortOrder = Model.SortOrder,
                         page = Model.CurrentPage - 1
-                    })">← Trước</a>
+                    })">Trước</a>
                 }
 
                 @for (int i = 1; i <= Model.TotalPages; i++)
@@ -222,11 +240,13 @@
                         maxPrice = Model.MaxPrice,
                         sortOrder = Model.SortOrder,
                         page = Model.CurrentPage + 1
-                    })">Sau →</a>
+                    })">Sau</a>
                 }
             </div>
         }
     </section>
 </div>
 
-<script src="~/Scripts/chiikawa-slider.js?v=1"></script>
+@section scripts {
+    <script src="~/Scripts/chiikawa-slider.js?v=2"></script>
+}

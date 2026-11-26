@@ -1,22 +1,78 @@
-﻿@model Joymart.Models.Category
+﻿@* =====================================================================
+   VIEW: Views/Categories/Details.cshtml
+   MỤC ĐÍCH:
+     Hiển thị thông tin chi tiết danh mục cùng bảng toàn bộ sản phẩm trực thuộc.
+   ===================================================================== *@
+@model Joymart.Models.Category
+@using System.Linq
 
 @{
-    ViewBag.Title = "Chi tiết danh mục";
+    ViewBag.Title = "Chi tiết danh mục - " + Model.CategoryName;
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var products = Model.Products != null ? Model.Products.OrderByDescending(p => p.ProductID).ToList() : new System.Collections.Generic.List<Joymart.Models.Product>();
 }
 
-<div class="admin-panel" style="max-width: 640px; margin: 32px auto;">
+<div class="admin-panel">
     <div class="admin-toolbar">
-        <h2 class="section-title">Chi tiết danh mục</h2>
-        <div style="display: flex; gap: 10px;">
-            @Html.ActionLink("Chỉnh sửa", "Edit", new { id = Model.CategoryID }, new { @class = "btn-brand" })
-            @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn-soft" })
+        <div>
+            <h2 class="section-title">Danh mục: @Model.CategoryName</h2>
+            <small style="color: #64748b; display: block; margin-top: 4px;">
+                Mã danh mục: <strong>#@Model.CategoryID</strong> • Tổng số mặt hàng: <strong>@products.Count</strong>
+            </small>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            @Html.ActionLink("Chỉnh sửa tên", "Edit", new { id = Model.CategoryID }, new { @class = "btn-brand" })
+            @Html.ActionLink("← Quay lại danh sách", "Index", null, new { @class = "btn-soft" })
         </div>
     </div>
 
-    <div class="order-info-card" style="margin-top: 18px;">
-        <p><strong>Mã danh mục:</strong> #@Model.CategoryID</p>
-        <p><strong>Tên danh mục:</strong> @Model.CategoryName</p>
-        <p><strong>Số lượng sản phẩm:</strong> @(Model.Products != null ? Model.Products.Count : 0) sản phẩm</p>
-    </div>
+    @if (!products.Any())
+    {
+        <div class="catalog-empty">
+            <h3>Danh mục này hiện chưa có sản phẩm nào</h3>
+            <p>Bạn có thể thêm sản phẩm mới vào danh mục này tại phần Quản lý sản phẩm.</p>
+            @Html.ActionLink("+ Thêm sản phẩm mới", "Create", "Products", null, new { @class = "btn-brand" })
+        </div>
+    }
+    else
+    {
+        <div style="overflow-x: auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Hình ảnh</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Đơn giá</th>
+                        <th>Tồn kho</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in products)
+                    {
+                        <tr>
+                            <td style="width: 76px;">
+                                <img src="~/Content/images/@(string.IsNullOrEmpty(p.ImageUrl) ? "no-image.png" : p.ImageUrl)"
+                                     alt="@p.ProductName"
+                                     onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';"
+                                     style="width: 56px; height: 56px; object-fit: cover; border-radius: 10px; border: 1px solid #e2e8f0;" />
+                            </td>
+                            <td><strong>@p.ProductName</strong></td>
+                            <td><strong style="color: #e11d48;">@p.Price.ToString("#,##0") đ</strong></td>
+                            <td><strong>@p.StockQuantity</strong></td>
+                            <td>
+                                <span class="status-badge @(p.IsActive ? "status-active" : "status-inactive")">
+                                    @(p.IsActive ? "Đang bán" : "Ngừng bán")
+                                </span>
+                            </td>
+                            <td>
+                                @Html.ActionLink("Chỉnh sửa SP", "Edit", "Products", new { id = p.ProductID }, new { @class = "btn-soft", style = "padding: 5px 11px; font-size: 12.5px;" })
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>

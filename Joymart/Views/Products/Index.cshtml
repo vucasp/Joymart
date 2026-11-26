@@ -1,4 +1,10 @@
-﻿@model IEnumerable<Joymart.Models.Product>
+﻿@* =====================================================================
+   VIEW: Views/Products/Index.cshtml
+   MỤC ĐÍCH:
+     Trang Quản lý danh sách sản phẩm trong Admin Portal (kèm bộ lọc tìm kiếm
+     theo tên, danh mục, tình trạng bán và cảnh báo tồn kho).
+   ===================================================================== *@
+@model Joymart.Models.AdminProductListViewModel
 
 @{
     ViewBag.Title = "Quản lý sản phẩm";
@@ -7,16 +13,49 @@
 
 <div class="admin-panel">
     <div class="admin-toolbar">
-        <h2 class="section-title">Quản lý sản phẩm</h2>
-        @Html.ActionLink("+ Thêm sản phẩm mới", "Create", null, new { @class = "btn-brand" })
+        <div>
+            <h2 class="section-title">Danh mục sản phẩm kinh doanh (@Model.Products.Count)</h2>
+            <small style="color: #64748b; display: block; margin-top: 4px;">
+                Tồn kho tại đây đồng bộ trực tiếp với phân hệ Quản lý kho hàng.
+            </small>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            @Html.ActionLink("Quản lý kho hàng", "Index", "Inventory", null, new { @class = "btn-soft" })
+            @Html.ActionLink("+ Thêm sản phẩm mới", "Create", null, new { @class = "btn-brand" })
+        </div>
     </div>
 
     @if (TempData["ProductMsg"] != null)
     {
-        <div class="cart-message cart-message-success" style="margin-bottom: 18px;">
-            @TempData["ProductMsg"]
-        </div>
+        <div class="cart-message cart-message-success">@TempData["ProductMsg"]</div>
     }
+
+    <!-- BỘ LỌC TÌM KIẾM SẢN PHẨM TRONG ADMIN -->
+    <div class="catalog-toolbar" style="background: #f8fafc; border-color: #e2e8f0; margin-bottom: 20px;">
+        @using (Html.BeginForm("Index", "Products", FormMethod.Get, new { @class = "catalog-search" }))
+        {
+            <input type="text" name="keyword" value="@Model.Keyword" placeholder="Tìm tên hoặc mô tả sản phẩm..." />
+
+            <select name="categoryId">
+                <option value="">Tất cả danh mục</option>
+                @foreach (var c in Model.Categories)
+                {
+                    <option value="@c.CategoryID" @(Model.CategoryId == c.CategoryID ? "selected" : "")>@c.CategoryName</option>
+                }
+            </select>
+
+            <select name="statusFilter">
+                <option value="" @(string.IsNullOrEmpty(Model.StatusFilter) ? "selected" : "")>Tất cả trạng thái</option>
+                <option value="active" @(Model.StatusFilter == "active" ? "selected" : "")>Đang bán</option>
+                <option value="inactive" @(Model.StatusFilter == "inactive" ? "selected" : "")>Ngừng bán</option>
+                <option value="lowstock" @(Model.StatusFilter == "lowstock" ? "selected" : "")>Sắp hết hàng (1 - 5)</option>
+                <option value="outofstock" @(Model.StatusFilter == "outofstock" ? "selected" : "")>Hết hàng (0)</option>
+            </select>
+
+            <button type="submit" class="btn-brand">Lọc sản phẩm</button>
+            <a class="btn-soft" href="@Url.Action("Index", "Products")">Đặt lại</a>
+        }
+    </div>
 
     <div style="overflow-x: auto;">
         <table class="admin-table">
@@ -32,18 +71,18 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
+                @foreach (var item in Model.Products)
                 {
                     <tr>
-                        <td style="width: 96px;">
+                        <td style="width: 88px;">
                             <img src="~/Content/images/@(string.IsNullOrEmpty(item.ImageUrl) ? "no-image.png" : item.ImageUrl)"
                                  alt="@item.ProductName"
                                  onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';"
-                                 style="width: 72px; height: 72px; object-fit: cover; border-radius: 12px; border: 1px solid var(--line);" />
+                                 style="width: 68px; height: 68px; object-fit: cover; border-radius: 12px; border: 1px solid #e2e8f0;" />
                         </td>
                         <td>
-                            <strong style="color: var(--ink);">@item.ProductName</strong>
-                            <div style="color: var(--muted); font-size: 13px; margin-top: 3px;">@item.Description</div>
+                            <strong style="color: #0f172a;">@item.ProductName</strong>
+                            <div style="color: #64748b; font-size: 13px; margin-top: 3px;">@item.Description</div>
                         </td>
                         <td>
                             <span class="product-category-tag" style="margin: 0;">@item.Category.CategoryName</span>
@@ -51,7 +90,20 @@
                         <td>
                             <strong style="color: #e11d48;">@item.Price.ToString("#,##0") đ</strong>
                         </td>
-                        <td><strong>@item.StockQuantity</strong></td>
+                        <td>
+                            @if (item.StockQuantity <= 0)
+                            {
+                                <span class="status-badge status-inactive">Hết (0)</span>
+                            }
+                            else if (item.StockQuantity <= 5)
+                            {
+                                <span class="status-badge status-warning">@item.StockQuantity (Sắp hết)</span>
+                            }
+                            else
+                            {
+                                <strong>@item.StockQuantity</strong>
+                            }
+                        </td>
                         <td>
                             @if (item.IsActive)
                             {
@@ -64,7 +116,7 @@
                         </td>
                         <td class="action-links" style="white-space: nowrap;">
                             @Html.ActionLink("Sửa", "Edit", new { id = item.ProductID }) |
-                            @Html.ActionLink("Chi tiết", "Details", new { id = item.ProductID }) |
+                            @Html.ActionLink("Xem trên cửa hàng", "Details", new { id = item.ProductID }) |
                             @Html.ActionLink("Xóa", "Delete", new { id = item.ProductID })
                         </td>
                     </tr>

@@ -1,34 +1,35 @@
-﻿@model Joymart.Models.Category
+﻿@* =====================================================================
+   VIEW: Views/Categories/Create.cshtml
+   MỤC ĐÍCH:
+     Form tạo danh mục ngành hàng mới theo bố cục Card hiện đại của Admin Portal.
+   ===================================================================== *@
+@model Joymart.Models.Category
 
 @{
-    ViewBag.Title = "Thêm danh mục";
+    ViewBag.Title = "Thêm danh mục mới";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="admin-panel" style="max-width: 640px; margin: 32px auto;">
-    <h2 class="section-title" style="margin-bottom: 24px;">Thêm danh mục mới</h2>
+<div class="admin-panel" style="max-width: 600px; margin: 0 auto;">
+    <div class="admin-toolbar">
+        <h2 class="section-title">Tạo danh mục ngành hàng mới</h2>
+        @Html.ActionLink("← Quay lại danh sách", "Index", null, new { @class = "btn-soft" })
+    </div>
 
-    @using (Html.BeginForm("Create", "Categories", FormMethod.Post)) 
+    @using (Html.BeginForm("Create", "Categories", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
-        
-        <div class="form-horizontal">
-            @Html.ValidationSummary(true, "", new { @class = "cart-message cart-message-error" })
+        @Html.ValidationSummary(true, "", new { @class = "cart-message cart-message-error" })
 
-            <div class="form-group">
-                <label class="control-label col-md-3" for="CategoryName" style="font-weight: 700;">Tên danh mục</label>
-                <div class="col-md-9">
-                    @Html.TextBoxFor(model => model.CategoryName, new { @class = "form-control-modern", placeholder = "Ví dụ: Thiết bị công nghệ" })
-                    @Html.ValidationMessageFor(model => model.CategoryName, "", new { @class = "text-danger" })
-                </div>
-            </div>
+        <div class="auth-field">
+            <label for="CategoryName">Tên danh mục sản phẩm</label>
+            @Html.TextBoxFor(model => model.CategoryName, new { @class = "form-control-modern", placeholder = "Ví dụ: Văn phòng phẩm Chiikawa", maxlength = "100" })
+            @Html.ValidationMessageFor(model => model.CategoryName, "", new { @class = "text-danger" })
+        </div>
 
-            <div class="form-group" style="margin-top: 24px;">
-                <div class="col-md-offset-3 col-md-9" style="display: flex; gap: 12px; align-items: center;">
-                    <input type="submit" value="Lưu danh mục" class="btn-brand" />
-                    @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn-soft" })
-                </div>
-            </div>
+        <div style="display: flex; gap: 12px; margin-top: 22px;">
+            <button type="submit" class="btn-brand">Lưu danh mục mới</button>
+            @Html.ActionLink("Hủy bỏ", "Index", null, new { @class = "btn-soft" })
         </div>
     }
 </div>

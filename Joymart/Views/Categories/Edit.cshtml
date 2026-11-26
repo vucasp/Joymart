@@ -1,35 +1,41 @@
-﻿@model Joymart.Models.Category
+﻿@* =====================================================================
+   VIEW: Views/Categories/Edit.cshtml
+   MỤC ĐÍCH:
+     Form chỉnh sửa tên danh mục ngành hàng theo bố cục Card hiện đại.
+   ===================================================================== *@
+@model Joymart.Models.Category
 
 @{
     ViewBag.Title = "Chỉnh sửa danh mục";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="admin-panel" style="max-width: 640px; margin: 32px auto;">
-    <h2 class="section-title" style="margin-bottom: 24px;">Chỉnh sửa danh mục</h2>
+<div class="admin-panel" style="max-width: 600px; margin: 0 auto;">
+    <div class="admin-toolbar">
+        <div>
+            <h2 class="section-title">Cập nhật danh mục #@Model.CategoryID</h2>
+            <small style="color: #64748b; display: block; margin-top: 4px;">
+                Thay đổi tên danh mục sẽ tự động cập nhật trên toàn bộ sản phẩm trực thuộc.
+            </small>
+        </div>
+        @Html.ActionLink("← Quay lại", "Index", null, new { @class = "btn-soft" })
+    </div>
 
     @using (Html.BeginForm("Edit", "Categories", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
         @Html.HiddenFor(model => model.CategoryID)
+        @Html.ValidationSummary(true, "", new { @class = "cart-message cart-message-error" })
 
-        <div class="form-horizontal">
-            @Html.ValidationSummary(true, "", new { @class = "cart-message cart-message-error" })
+        <div class="auth-field">
+            <label for="CategoryName">Tên danh mục</label>
+            @Html.TextBoxFor(model => model.CategoryName, new { @class = "form-control-modern", placeholder = "Nhập tên danh mục", maxlength = "100" })
+            @Html.ValidationMessageFor(model => model.CategoryName, "", new { @class = "text-danger" })
+        </div>
 
-            <div class="form-group">
-                <label class="control-label col-md-3" for="CategoryName" style="font-weight: 700;">Tên danh mục</label>
-                <div class="col-md-9">
-                    @Html.TextBoxFor(model => model.CategoryName, new { @class = "form-control-modern", placeholder = "Nhập tên danh mục" })
-                    @Html.ValidationMessageFor(model => model.CategoryName, "", new { @class = "text-danger" })
-                </div>
-            </div>
-
-            <div class="form-group" style="margin-top: 24px;">
-                <div class="col-md-offset-3 col-md-9" style="display: flex; gap: 12px; align-items: center;">
-                    <input type="submit" value="Lưu thay đổi" class="btn-brand" />
-                    @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn-soft" })
-                </div>
-            </div>
+        <div style="display: flex; gap: 12px; margin-top: 22px;">
+            <button type="submit" class="btn-brand">Lưu thay đổi</button>
+            @Html.ActionLink("Hủy bỏ", "Index", null, new { @class = "btn-soft" })
         </div>
     }
 </div>

@@ -28,6 +28,9 @@ namespace Joymart.Models
         public string Status { get; set; }
         public string RecipientName { get; set; }
         public string ShippingPhone { get; set; }
+        public decimal ShippingFee { get; set; }
+        public Nullable<System.DateTime> ShippedDate { get; set; }
+        public Nullable<System.DateTime> CompletedDate { get; set; }
     
         public virtual Customer Customer { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

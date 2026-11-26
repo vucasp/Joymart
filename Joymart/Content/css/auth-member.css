@@ -1,0 +1,215 @@
+﻿/* =====================================================================
+   FILE: Content/css/auth-member.css
+   MỤC ĐÍCH:
+     - Giao diện Đăng nhập, Đăng ký, Cập nhật hồ sơ, Đổi mật khẩu:
+       Hỗ trợ căn giữa phần tiêu đề trên (.auth-card-header) và căn trái
+       từ phần Tên đăng nhập trở xuống (.auth-form-body).
+     - Giao diện Đơn mua của khách hàng thành viên (/Member/MyOrders & OrderDetails)
+       với bộ lọc tab trạng thái và bảng đơn hàng riêng biệt trên Storefront.
+   ===================================================================== */
+
+.auth-page {
+    display: flex;
+    justify-content: center;
+    padding: 36px 0;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 500px;
+    padding: 32px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 16px 36px rgba(232, 93, 136, 0.08);
+}
+
+/* Căn giữa toàn bộ phần tiêu đề phía trên cho trang Đăng nhập & Cập nhật hồ sơ */
+.auth-card-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+    .auth-card-header .product-category-tag {
+        align-self: center;
+    }
+
+.auth-card h2 {
+    margin: 8px 0 6px;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--ink);
+}
+
+.auth-subtitle {
+    margin-bottom: 22px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+/* Giữ căn lề trái cho phần form từ Tên đăng nhập trở xuống */
+.auth-form-body {
+    text-align: left;
+}
+
+.auth-field {
+    margin-bottom: 16px;
+}
+
+    .auth-field label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--ink);
+    }
+
+.auth-submit {
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px 20px;
+    font-size: 15px;
+}
+
+.auth-bottom-link {
+    margin-top: 18px;
+    margin-bottom: 0;
+    text-align: center;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+/* ===== GIAO DIỆN LỊCH SỬ ĐƠN MUA CỦA THÀNH VIÊN (MY ORDERS) ===== */
+.member-orders-panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 26px;
+    margin: 28px 0 40px;
+    box-shadow: var(--shadow-sm);
+}
+
+.member-orders-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-bottom: 18px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+}
+
+/* Thanh tab lọc nhanh theo trạng thái đơn mua */
+.member-status-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.member-status-tab {
+    padding: 8px 15px;
+    border-radius: 999px;
+    border: 1.5px solid var(--line);
+    background: #fff9fb;
+    color: #524156;
+    font-size: 13.5px;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: all 0.18s ease;
+}
+
+    .member-status-tab:hover {
+        border-color: var(--brand);
+        color: var(--brand-dark);
+        background: var(--brand-soft);
+    }
+
+    .member-status-tab.active {
+        background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+        border-color: var(--brand-dark);
+        color: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(232, 93, 136, 0.24);
+    }
+
+/* Danh sách các thẻ đơn mua của thành viên */
+.member-order-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.member-order-card {
+    border: 1.5px solid var(--line);
+    border-radius: 16px;
+    background: #ffffff;
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .member-order-card:hover {
+        border-color: rgba(255, 122, 162, 0.6);
+        box-shadow: 0 8px 22px rgba(232, 93, 136, 0.08);
+    }
+
+.member-order-head {
+    background: #fff9fb;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.member-order-body {
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 16px;
+    align-items: center;
+}
+
+.member-order-meta p {
+    margin: 4px 0;
+    font-size: 14px;
+    color: #4a3b4e;
+}
+
+.member-order-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.member-order-total {
+    font-size: 20px;
+    font-weight: 800;
+    color: #e11d48;
+}
+
+.member-order-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+@media (max-width: 720px) {
+    .member-order-body {
+        grid-template-columns: 1fr;
+    }
+
+    .member-order-right {
+        align-items: flex-start;
+    }
+
+    .member-order-actions {
+        justify-content: flex-start;
+    }
+}

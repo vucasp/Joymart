@@ -20,6 +20,7 @@
     <Property Name="Address" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
     <NavigationProperty Name="UserAccount" Relationship="Self.FK__Customer__UserID__52593CB8" FromRole="Customer" ToRole="UserAccount" />
     <NavigationProperty Name="OrderProes" Relationship="Self.FK__OrderPro__Custom__5CD6CB2B" FromRole="Customer" ToRole="OrderPro" />
+    <NavigationProperty Name="ProductReviews" Relationship="Self.FK_ProductReview_Customer" FromRole="Customer" ToRole="ProductReview" />
   </EntityType>
   <EntityType Name="OrderDetail">
     <Key>
@@ -47,6 +48,9 @@
     <NavigationProperty Name="OrderDetails" Relationship="Self.FK__OrderDeta__Order__60A75C0F" FromRole="OrderPro" ToRole="OrderDetail" />
     <Property Name="RecipientName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
     <Property Name="ShippingPhone" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+    <Property Name="ShippingFee" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+    <Property Name="ShippedDate" Type="DateTime" Precision="3" />
+    <Property Name="CompletedDate" Type="DateTime" Precision="3" />
   </EntityType>
   <EntityType Name="Product">
     <Key>
@@ -62,6 +66,20 @@
     <Property Name="IsActive" Type="Boolean" Nullable="false" />
     <NavigationProperty Name="Category" Relationship="Self.FK__Product__Categor__571DF1D5" FromRole="Product" ToRole="Category" />
     <NavigationProperty Name="OrderDetails" Relationship="Self.FK__OrderDeta__Produ__619B8048" FromRole="Product" ToRole="OrderDetail" />
+    <NavigationProperty Name="ProductReviews" Relationship="Self.FK_ProductReview_Product" FromRole="Product" ToRole="ProductReview" />
+  </EntityType>
+  <EntityType Name="ProductReview">
+    <Key>
+      <PropertyRef Name="ReviewID" />
+    </Key>
+    <Property Name="ReviewID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ProductID" Type="Int32" Nullable="false" />
+    <Property Name="CustomerID" Type="Int32" Nullable="false" />
+    <Property Name="Rating" Type="Int32" Nullable="false" />
+    <Property Name="Comment" Type="String" MaxLength="500" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="CreatedAt" Type="DateTime" Nullable="false" Precision="3" />
+    <NavigationProperty Name="Product" Relationship="Self.FK_ProductReview_Product" FromRole="ProductReview" ToRole="Product" />
+    <NavigationProperty Name="Customer" Relationship="Self.FK_ProductReview_Customer" FromRole="ProductReview" ToRole="Customer" />
   </EntityType>
   <EntityType Name="Role">
     <Key>
@@ -157,14 +175,47 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
+  <Association Name="FK_ProductReview_Product">
+    <End Role="Product" Type="Self.Product" Multiplicity="1" />
+    <End Role="ProductReview" Type="Self.ProductReview" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Product">
+        <PropertyRef Name="ProductID" />
+      </Principal>
+      <Dependent Role="ProductReview">
+        <PropertyRef Name="ProductID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_ProductReview_Customer">
+    <End Role="Customer" Type="Self.Customer" Multiplicity="1" />
+    <End Role="ProductReview" Type="Self.ProductReview" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Customer">
+        <PropertyRef Name="CustomerID" />
+      </Principal>
+      <Dependent Role="ProductReview">
+        <PropertyRef Name="CustomerID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
   <EntityContainer Name="DBJoymartEntities" annotation:LazyLoadingEnabled="true">
     <EntitySet Name="Categories" EntityType="Self.Category" />
     <EntitySet Name="Customers" EntityType="Self.Customer" />
     <EntitySet Name="OrderDetails" EntityType="Self.OrderDetail" />
     <EntitySet Name="OrderProes" EntityType="Self.OrderPro" />
     <EntitySet Name="Products" EntityType="Self.Product" />
+    <EntitySet Name="ProductReviews" EntityType="Self.ProductReview" />
     <EntitySet Name="Roles" EntityType="Self.Role" />
     <EntitySet Name="UserAccounts" EntityType="Self.UserAccount" />
+    <AssociationSet Name="FK_ProductReview_Product" Association="Self.FK_ProductReview_Product">
+      <End Role="Product" EntitySet="Products" />
+      <End Role="ProductReview" EntitySet="ProductReviews" />
+    </AssociationSet>
+    <AssociationSet Name="FK_ProductReview_Customer" Association="Self.FK_ProductReview_Customer">
+      <End Role="Customer" EntitySet="Customers" />
+      <End Role="ProductReview" EntitySet="ProductReviews" />
+    </AssociationSet>
     <AssociationSet Name="FK__Product__Categor__571DF1D5" Association="Self.FK__Product__Categor__571DF1D5">
       <End Role="Category" EntitySet="Categories" />
       <End Role="Product" EntitySet="Products" />

@@ -1,40 +1,55 @@
-﻿@model Joymart.Models.Product
+﻿@* =====================================================================
+   VIEW: Views/Products/Details.cshtml
+   MỤC ĐÍCH:
+     Trang Chi tiết sản phẩm dành cho người mua:
+       - Hình ảnh, giá bán, tồn kho đồng bộ, chọn số lượng mua & Mua ngay.
+       - Khối Đánh giá & Bình luận từ khách hàng đã mua hàng Hoàn thành.
+       - Khối 4 Sản phẩm cùng danh mục (Related Products).
+   ===================================================================== *@
+@model Joymart.Models.ProductDetailViewModel
+@using System.Linq
 
 @{
-    ViewBag.Title = Model.ProductName;
+    var product = Model.Product;
+    ViewBag.Title = product.ProductName;
     Layout = "~/Views/Shared/_StoreLayout.cshtml";
-    bool canBuy = Model.IsActive && Model.StockQuantity > 0;
+    bool canBuy = product.IsActive && product.StockQuantity > 0;
+    int defaultRating = Model.ExistingUserReview != null ? Model.ExistingUserReview.Rating : 5;
 }
 
 <div class="shopee-container">
-    @* Breadcrumb điều hướng *@
+    <!-- Breadcrumb điều hướng -->
     <nav class="shopee-breadcrumb">
-        <a href="@Url.Action("Index", "Store")">Joymart</a>
+        <a href="@Url.Action("Index", "Store")">Trang chủ</a>
         <span>&gt;</span>
-        @if (Model.Category != null)
+        @if (product.Category != null)
         {
-            <a href="@Url.Action("Index", "Store", new { categoryId = Model.CategoryID })">
-                @Model.Category.CategoryName
+            <a href="@Url.Action("Index", "Store", new { categoryId = product.CategoryID })">
+                @product.Category.CategoryName
             </a>
             <span>&gt;</span>
         }
-        <span class="current">@Model.ProductName</span>
+        <span class="current">@product.ProductName</span>
     </nav>
 
     @if (TempData["CartError"] != null)
     {
-        <div class="cart-message cart-message-error">
-            @TempData["CartError"]
-        </div>
+        <div class="cart-message cart-message-error">@TempData["CartError"]</div>
+    }
+    @if (TempData["ReviewSuccess"] != null)
+    {
+        <div class="cart-message cart-message-success">@TempData["ReviewSuccess"]</div>
     }
 
+    <!-- KHUNG CHÍNH 2 CỘT: ẢNH + THÔNG TIN ĐẶT MUA -->
     <div class="shopee-product-box">
-        @* CỘT TRÁI: HÌNH ẢNH SẢN PHẨM *@
         <div class="shopee-gallery">
             <div class="shopee-main-img">
-                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                @if (!string.IsNullOrEmpty(product.ImageUrl))
                 {
-                    <img src="~/Content/images/@Model.ImageUrl" alt="@Model.ProductName" onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
+                    <img src="~/Content/images/@product.ImageUrl"
+                         alt="@product.ProductName"
+                         onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
                 }
                 else
                 {
@@ -43,57 +58,62 @@
             </div>
         </div>
 
-        @* CỘT PHẢI: TÊN, GIÁ, MÔ TẢ, SỐ LƯỢNG, NÚT ĐẶT/MUA & QUẢN TRỊ *@
         <div class="shopee-info">
             <div class="shopee-title-row">
-                <h1>@Model.ProductName</h1>
+                <h1>@product.ProductName</h1>
             </div>
 
             <div class="shopee-stats-row">
-                <div class="stat-item">
-                    Danh mục: <strong>@(Model.Category != null ? Model.Category.CategoryName : "Đang cập nhật")</strong>
+                <div>Danh mục: <strong>@(product.Category != null ? product.Category.CategoryName : "Đang cập nhật")</strong></div>
+                <span class="stat-divider">|</span>
+                <div>
+                    Đánh giá:
+                    <strong>@(Model.Reviews.Any() ? Model.AverageRating.ToString("0.0") + " / 5 (" + Model.Reviews.Count + " lượt)" : "Chưa có đánh giá")</strong>
                 </div>
                 <span class="stat-divider">|</span>
-                <div class="stat-item">
+                <div>
                     Trạng thái:
-                    <strong style="color: @(Model.IsActive ? "#15803d" : "#b91c1c");">
-                        @(Model.IsActive ? "Đang bán" : "Ngừng bán")
+                    <strong style="color: @(product.IsActive ? "#15803d" : "#b91c1c");">
+                        @(product.IsActive ? "Đang kinh doanh" : "Ngừng bán")
                     </strong>
                 </div>
             </div>
 
             <div class="shopee-price-box">
-                <span class="shopee-price-current">@Model.Price.ToString("#,##0") ₫</span>
+                <span class="shopee-price-current">@product.Price.ToString("#,##0") đ</span>
+                <span style="font-size: 13px; color: var(--muted); font-weight: 600;">
+                    Miễn phí vận chuyển cho đơn từ 360.067 đ
+                </span>
             </div>
 
             <div class="shopee-meta-list">
                 <div class="shopee-meta-row">
-                    <div class="meta-label">Mô tả</div>
-                    <div class="meta-value meta-desc">
-                        @(string.IsNullOrWhiteSpace(Model.Description) ? "Đang cập nhật mô tả sản phẩm." : Model.Description)
+                    <div class="meta-label">Mô tả chi tiết</div>
+                    <div class="meta-value">
+                        @(string.IsNullOrWhiteSpace(product.Description) ? "Đang cập nhật mô tả sản phẩm." : product.Description)
                     </div>
                 </div>
 
                 @using (Html.BeginForm("AddToCart", "ShoppingCart", FormMethod.Get, new { id = "productOrderForm" }))
                 {
-                    <input type="hidden" name="id" value="@Model.ProductID" />
+                    <input type="hidden" name="id" value="@product.ProductID" />
                     <input type="hidden" name="mode" id="orderMode" value="cart" />
 
                     <div class="shopee-meta-row" style="align-items: center;">
-                        <div class="meta-label">Số lượng</div>
+                        <div class="meta-label">Số lượng mua</div>
                         <div class="meta-value shopee-qty-wrap">
                             <div class="shopee-qty-control">
-                                <button type="button" onclick="changeDetailQty(-1)" @(canBuy ? "" : "disabled")>−</button>
+                                <button type="button" onclick="changeDetailQty(-1)" @(canBuy ? "" : "disabled")>-</button>
                                 <input type="number"
                                        id="detailQty"
                                        name="quantity"
                                        value="1"
                                        min="1"
-                                       max="@(Model.StockQuantity > 0 ? Model.StockQuantity : 1)"
+                                       max="@(product.StockQuantity > 0 ? product.StockQuantity : 1)"
                                        @(canBuy ? "" : "readonly") />
                                 <button type="button" onclick="changeDetailQty(1)" @(canBuy ? "" : "disabled")>+</button>
                             </div>
-                            <span class="shopee-stock-text">@Model.StockQuantity sản phẩm có sẵn</span>
+                            <span class="shopee-stock-text">Còn @product.StockQuantity sản phẩm trong kho</span>
                         </div>
                     </div>
 
@@ -115,7 +135,7 @@
                         else
                         {
                             <button type="button" class="btn-shopee-disabled" disabled>
-                                @(Model.IsActive ? "Sản phẩm tạm hết hàng" : "Sản phẩm đã ngừng kinh doanh")
+                                @(product.IsActive ? "Sản phẩm tạm hết hàng" : "Sản phẩm đã ngừng kinh doanh")
                             </button>
                         }
                     </div>
@@ -125,26 +145,164 @@
             @if (Convert.ToString(Session["Role"]) == "Admin")
             {
                 <div class="shopee-admin-bar">
-                    <span>Quản trị viên:</span>
-                    @Html.ActionLink("Sửa sản phẩm", "Edit", "Products", new { id = Model.ProductID }, new { @class = "btn-soft" })
-                    @Html.ActionLink("Quản lý danh sách", "Index", "Products", null, new { @class = "btn-soft" })
+                    <span>Tác vụ quản trị viên:</span>
+                    @Html.ActionLink("Chỉnh sửa sản phẩm", "Edit", "Products", new { id = product.ProductID }, new { @class = "btn-soft" })
+                    @Html.ActionLink("Quản lý kho hàng", "Index", "Inventory", new { keyword = product.ProductName }, new { @class = "btn-soft" })
                 </div>
             }
         </div>
     </div>
+
+    <!-- KHỐI ĐÁNH GIÁ & BÌNH LUẬN SẢN PHẨM -->
+    <section class="review-section">
+        <div class="section-header" style="margin-top: 0;">
+            <h2 class="section-title" style="font-size: 21px;">Đánh giá từ khách hàng đã mua</h2>
+        </div>
+
+        <div class="review-summary-box">
+            <div>
+                <div class="review-score-big">
+                    @(Model.Reviews.Any() ? Model.AverageRating.ToString("0.0") + " / 5" : "Chưa có điểm")
+                </div>
+                <div style="font-size: 13.5px; color: var(--muted); margin-top: 4px;">
+                    Tổng cộng <strong>@Model.Reviews.Count</strong> nhận xét thực tế từ các đơn hàng đã hoàn thành.
+                </div>
+            </div>
+            <div>
+                @if (!Model.CanReview)
+                {
+                    <span style="font-size: 13px; color: #64748b;">
+                        Chỉ thành viên đã nhận hàng thành công (đơn Hoàn thành) mới có thể viết đánh giá cho sản phẩm này.
+                    </span>
+                }
+            </div>
+        </div>
+
+        @if (Model.CanReview)
+        {
+            <div class="review-form-box">
+                <h4 style="margin: 0 0 12px; font-size: 16px; font-weight: 800;">
+                    @(Model.ExistingUserReview != null ? "Cập nhật đánh giá của bạn" : "Gửi đánh giá của bạn")
+                </h4>
+
+                @using (Html.BeginForm("AddReview", "Products", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="productId" value="@product.ProductID" />
+                    <input type="hidden" name="rating" id="ratingValueInput" value="@defaultRating" />
+
+                    <div style="margin-bottom: 14px;">
+                        <label style="font-size: 13.5px; font-weight: 700;">Mức độ hài lòng:</label>
+                        <div class="rating-select-group">
+                            @for (int score = 5; score >= 1; score--)
+                            {
+                                <button type="button"
+                                        class="rating-pill @(score == defaultRating ? "active" : "")"
+                                        onclick="selectRatingPill(@score, this)">
+                                    @score / 5 điểm
+                                </button>
+                            }
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 14px;">
+                        <label for="reviewComment" style="font-size: 13.5px; font-weight: 700; display: block; margin-bottom: 6px;">Nội dung nhận xét:</label>
+                        <textarea id="reviewComment"
+                                  name="comment"
+                                  rows="3"
+                                  maxlength="500"
+                                  required
+                                  class="form-control-modern"
+                                  placeholder="Chia sẻ trải nghiệm thực tế của bạn về chất lượng sản phẩm...">@(Model.ExistingUserReview != null ? Model.ExistingUserReview.Comment : "")</textarea>
+                    </div>
+
+                    <button type="submit" class="btn-brand">
+                        @(Model.ExistingUserReview != null ? "Cập nhật đánh giá" : "Gửi đánh giá")
+                    </button>
+                }
+            </div>
+        }
+
+        @if (Model.Reviews.Any())
+        {
+            <div class="review-list">
+                @foreach (var rv in Model.Reviews)
+                {
+                    <div class="review-item">
+                        <div class="review-item-head">
+                            <div>
+                                <strong>@(rv.Customer != null ? rv.Customer.FullName : "Khách hàng")</strong>
+                                <span style="font-size: 12.5px; color: #94a3b8; margin-left: 8px;">@rv.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                            <span class="review-rating-badge">@rv.Rating / 5 điểm</span>
+                        </div>
+                        <p class="review-comment">@rv.Comment</p>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p style="color: #64748b; margin: 0; font-size: 14px;">Chưa có nhận xét nào cho sản phẩm này.</p>
+        }
+    </section>
+
+    <!-- KHỐI SẢN PHẨM CÙNG DANH MỤC -->
+    @if (Model.RelatedProducts != null && Model.RelatedProducts.Any())
+    {
+        <section class="related-section">
+            <div class="section-header">
+                <h2 class="section-title" style="font-size: 22px;">Sản phẩm cùng danh mục</h2>
+                <a class="btn-soft" href="@Url.Action("Index", "Store", new { categoryId = product.CategoryID })">Xem thêm cùng loại</a>
+            </div>
+
+            <div class="related-grid">
+                @foreach (var item in Model.RelatedProducts)
+                {
+                    <article class="product-card">
+                        <div class="product-image">
+                            <img src="~/Content/images/@(string.IsNullOrEmpty(item.ImageUrl) ? "no-image.png" : item.ImageUrl)"
+                                 alt="@item.ProductName"
+                                 onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/no-image.png")';" />
+                        </div>
+
+                        <div class="product-body">
+                            <div class="product-name">@item.ProductName</div>
+                            <div class="product-description">@item.Description</div>
+                            <div class="product-price-row">
+                                <div class="product-price">@item.Price.ToString("#,##0") đ</div>
+                                @if (item.StockQuantity <= 0)
+                                {
+                                    <span class="status-badge status-inactive">Hết hàng</span>
+                                }
+                                else if (item.StockQuantity <= 5)
+                                {
+                                    <span class="status-badge status-warning">Sắp hết</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-active">Còn hàng</span>
+                                }
+                            </div>
+                            <div class="product-actions">
+                                @Html.ActionLink("Chi tiết", "Details", "Products", new { id = item.ProductID }, new { @class = "btn-soft" })
+                                @if (item.StockQuantity > 0)
+                                {
+                                    @Html.ActionLink("Mua ngay", "AddToCart", "ShoppingCart", new { id = item.ProductID, mode = "buy" }, new { @class = "btn-brand" })
+                                }
+                                else
+                                {
+                                    <span class="btn-disabled">Hết hàng</span>
+                                }
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        </section>
+    }
 </div>
 
-<script>
-    function changeDetailQty(delta) {
-        var input = document.getElementById("detailQty");
-        if (!input || input.readOnly) return;
-
-        var current = parseInt(input.value) || 1;
-        var max = parseInt(input.max) || 1;
-        var next = current + delta;
-
-        if (next < 1) next = 1;
-        if (next > max) next = max;
-        input.value = next;
-    }
-</script>
+@section scripts {
+    <script src="~/Scripts/store-product.js"></script>
+}

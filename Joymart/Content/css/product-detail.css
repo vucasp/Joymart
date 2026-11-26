@@ -1,0 +1,406 @@
+﻿/* =====================================================================
+   FILE: Content/css/product-detail.css
+   MỤC ĐÍCH:
+     - Giao diện Chi tiết sản phẩm (Products/Details) và bố cục 2 cột Edit/Delete
+     - Khối Đánh giá & Bình luận sản phẩm (ProductReview)
+     - Khối Sản phẩm cùng danh mục (Related Products)
+   ===================================================================== */
+
+.shopee-container {
+    max-width: 1180px;
+    margin: 20px auto 40px;
+    padding: 0 16px;
+}
+
+.shopee-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 13.5px;
+    color: #64748b;
+    margin-bottom: 16px;
+}
+
+    .shopee-breadcrumb a {
+        color: var(--brand-dark);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+        .shopee-breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+    .shopee-breadcrumb .current {
+        color: #334155;
+        font-weight: 500;
+    }
+
+.shopee-product-box {
+    display: grid;
+    grid-template-columns: 420px minmax(0, 1fr);
+    gap: 32px;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 26px;
+    box-shadow: var(--shadow-sm);
+}
+
+.shopee-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.shopee-main-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid #f1f5f9;
+    background: #fafafa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .shopee-main-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.shopee-no-img {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.shopee-upload-box {
+    padding: 12px;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 10px;
+}
+
+.shopee-title-row h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1.35;
+    color: #0f172a;
+}
+
+.shopee-stats-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 12px 0 16px;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.stat-divider {
+    color: #e2e8f0;
+}
+
+.shopee-price-box {
+    background: var(--brand-soft);
+    padding: 16px 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.shopee-price-current {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--brand-dark);
+}
+
+.shopee-meta-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.shopee-meta-row {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+    font-size: 14px;
+}
+
+.meta-label {
+    color: #64748b;
+    font-weight: 600;
+}
+
+.meta-value {
+    color: #1e293b;
+    line-height: 1.55;
+}
+
+.shopee-qty-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.shopee-qty-control {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+    .shopee-qty-control button {
+        width: 36px;
+        height: 36px;
+        border: 0;
+        background: #f8fafc;
+        color: #334155;
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+        .shopee-qty-control button:hover:not(:disabled) {
+            background: #e2e8f0;
+        }
+
+    .shopee-qty-control input {
+        width: 56px;
+        height: 36px;
+        border: 0;
+        border-left: 1px solid #cbd5e1;
+        border-right: 1px solid #cbd5e1;
+        text-align: center;
+        font-weight: 700;
+        font-size: 14px;
+        color: #0f172a;
+        outline: none;
+    }
+
+.shopee-stock-text {
+    color: #64748b;
+    font-size: 13.5px;
+    font-weight: 600;
+}
+
+.shopee-actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+}
+
+.btn-shopee-cart {
+    padding: 13px 24px;
+    background: var(--brand-soft);
+    color: var(--brand-dark);
+    border: 1.5px solid var(--brand);
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    .btn-shopee-cart:hover {
+        background: #ffe0eb;
+    }
+
+.btn-shopee-buy {
+    padding: 13px 34px;
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    color: #ffffff;
+    border: 0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(232, 93, 136, 0.28);
+    transition: all 0.2s ease;
+}
+
+    .btn-shopee-buy:hover {
+        filter: brightness(1.05);
+    }
+
+.btn-shopee-danger {
+    padding: 13px 30px;
+    background: #dc2626;
+    color: #ffffff;
+    border: 0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-shopee-disabled {
+    padding: 13px 28px;
+    background: #e2e8f0;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: not-allowed;
+}
+
+.shopee-admin-bar {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px dashed #cbd5e1;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 13.5px;
+    color: #64748b;
+}
+
+/* ===== KHỐI ĐÁNH GIÁ & BÌNH LUẬN SẢN PHẨM (PRODUCT REVIEW) ===== */
+.review-section {
+    margin-top: 32px;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 26px;
+    box-shadow: var(--shadow-sm);
+}
+
+.review-summary-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 18px 22px;
+    background: #fff9fb;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    margin-bottom: 22px;
+}
+
+.review-score-big {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--brand-dark);
+    line-height: 1;
+}
+
+.review-form-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.rating-select-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.rating-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1.5px solid #cbd5e1;
+    background: #ffffff;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #334155;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s ease;
+}
+
+    .rating-pill.active,
+    .rating-pill:hover {
+        border-color: var(--brand-dark);
+        background: var(--brand-soft);
+        color: var(--brand-dark);
+    }
+
+.review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.review-item {
+    padding: 16px 18px;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+.review-item-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.review-rating-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--brand-soft);
+    color: var(--brand-dark);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.review-comment {
+    margin: 0;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* ===== KHỐI SẢN PHẨM CÙNG DANH MỤC (RELATED PRODUCTS) ===== */
+.related-section {
+    margin-top: 36px;
+}
+
+.related-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+@media (max-width: 900px) {
+    .shopee-product-box {
+        grid-template-columns: 1fr;
+    }
+
+    .related-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .related-grid {
+        grid-template-columns: 1fr;
+    }
+}

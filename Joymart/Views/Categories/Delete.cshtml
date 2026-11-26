@@ -1,42 +1,56 @@
-﻿@model Joymart.Models.Category
+﻿@* =====================================================================
+   VIEW: Views/Categories/Delete.cshtml
+   MỤC ĐÍCH:
+     Trang xác nhận xóa danh mục (khóa nút xóa nếu danh mục đang chứa sản phẩm).
+   ===================================================================== *@
+@model Joymart.Models.Category
+@using System.Linq
 
 @{
     ViewBag.Title = "Xóa danh mục";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     bool hasProducts = ViewBag.HasProducts != null && (bool)ViewBag.HasProducts;
+    int productCount = Model.Products != null ? Model.Products.Count : 0;
 }
 
-<div class="admin-panel" style="max-width: 640px; margin: 32px auto;">
-    <h2 class="section-title" style="margin-bottom: 12px; color: #e11d48;">Xác nhận xóa danh mục</h2>
+<div class="admin-panel" style="max-width: 680px; margin: 0 auto;">
+    <div class="admin-toolbar">
+        <h2 class="section-title" style="color: #e11d48;">Xác nhận xóa danh mục</h2>
+        @Html.ActionLink("← Quay lại danh sách", "Index", null, new { @class = "btn-soft" })
+    </div>
 
     @if (hasProducts)
     {
-        <div class="cart-message cart-message-error" style="margin-bottom: 20px;">
-            <strong>Cảnh báo:</strong> Danh mục này hiện đang chứa sản phẩm. Bạn không thể xóa danh mục cho đến khi chuyển hoặc xóa các sản phẩm thuộc danh mục này.
+        <div class="cart-message cart-message-error">
+            Danh mục <strong>"@Model.CategoryName"</strong> hiện đang chứa <strong>@productCount sản phẩm</strong>. Vui lòng chuyển các sản phẩm này sang danh mục khác trước khi thực hiện xóa.
         </div>
     }
     else
     {
-        <p style="color: var(--muted); margin-bottom: 20px;">
-            Bạn có chắc chắn muốn xóa danh mục <strong>"@Model.CategoryName"</strong> không? Thao tác này không thể hoàn tác.
-        </p>
+        <div class="cart-message cart-message-error">
+            Bạn có chắc chắn muốn xóa vĩnh viễn danh mục <strong>"@Model.CategoryName"</strong> không? Thao tác này không thể hoàn tác.
+        </div>
     }
 
-    <div class="order-info-card" style="margin-bottom: 24px;">
+    <div class="order-info-card" style="margin-bottom: 22px;">
         <p><strong>Mã danh mục:</strong> #@Model.CategoryID</p>
         <p><strong>Tên danh mục:</strong> @Model.CategoryName</p>
-        <p><strong>Số sản phẩm liên kết:</strong> @(Model.Products != null ? Model.Products.Count : 0) sản phẩm</p>
+        <p><strong>Số sản phẩm liên kết:</strong> @productCount sản phẩm</p>
     </div>
 
-    @using (Html.BeginForm()) {
+    @using (Html.BeginForm())
+    {
         @Html.AntiForgeryToken()
-
         <div style="display: flex; gap: 12px; align-items: center;">
             @if (!hasProducts)
             {
-                <button type="submit" class="btn-brand" style="background: #e11d48; border-color: #e11d48;">Xóa vĩnh viễn</button>
+                <button type="submit" class="btn-danger-soft">Xác nhận xóa vĩnh viễn</button>
             }
-            @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn-soft" })
+            else
+            {
+                @Html.ActionLink("Xem các sản phẩm trong danh mục này", "Details", new { id = Model.CategoryID }, new { @class = "btn-brand" })
+            }
+            @Html.ActionLink("Hủy bỏ", "Index", null, new { @class = "btn-soft" })
         </div>
     }
 </div>
